@@ -227,7 +227,7 @@ const PROGRAMS = [
 
 const PRODUCTS = [
   {id:'whey',     name:'Сывороточный изолят Pro', brand:'Form Basics',    price:3200, priceStr:'₽3 200', unit:'/кг',     desc:'25г белка на порцию, холодная обработка.',    badge:'Новинка'},
-  {id:'preworkout',name:'Предтрен Flow',           brand:'Form Basics',    price:2800, priceStr:'₽2 800', unit:'/300г',   desc:'Кофеин + бета-аланин + цитруллин. Без краша.'},
+  {id:'preworkout',name:'Предтрен Flow',           brand:'Form Basics',    price:2800, priceStr:'₽2 800', unit:'/300г',   desc:'Кофеин + бета-аланин + цитруллин.'},
   {id:'magnesium', name:'Магний глицинат',         brand:'Form Recovery',  price:1600, priceStr:'₽1 600', unit:'/90 кап.',desc:'Высокая биодоступность. Качество сна.'},
   {id:'omega3',    name:'Омега-3 Ультра',          brand:'Form Daily',     price:2100, priceStr:'₽2 100', unit:'/120 кап.',desc:'3г ЭПК+ДГК. Суставы, сердце, мозг.'},
   {id:'creatine',  name:'Моногидрат креатина',     brand:'Form Basics',    price:1400, priceStr:'₽1 400', unit:'/500г',   desc:'Самая изученная добавка в спорте.',           badge:'Хит'},
@@ -1932,20 +1932,28 @@ function updateFAB(section) {
 ══════════════════════════════════════ */
 let weightLog = []; // [{date:'2025-03-01', kg:82.5}, ...]
 
-function openWeightModal() {
-  const inp = document.getElementById('weight-input');
-  if (userProfile.weight) inp.value = userProfile.weight;
+function openWeightModal(dateStr) {
+  const dateInp = document.getElementById('weight-date-input');
+  const valInp = document.getElementById('weight-input');
+  // Default to today
+  const targetDate = dateStr || new Date().toISOString().split('T')[0];
+  dateInp.value = targetDate;
+  dateInp.max = new Date().toISOString().split('T')[0]; // can't pick future
+  // Pre-fill existing value if editing
+  const existing = weightLog.find(e => e.date === targetDate);
+  valInp.value = existing ? existing.kg : (userProfile.weight || '');
   document.getElementById('weightModal').classList.add('open');
-  setTimeout(() => inp.focus(), 100);
+  setTimeout(() => valInp.focus(), 100);
 }
 
 function saveWeight() {
   const val = parseFloat(document.getElementById('weight-input').value);
+  const date = document.getElementById('weight-date-input').value;
   if (!val || val < 20 || val > 300) return;
-  const today = new Date().toISOString().split('T')[0];
-  // remove existing entry for today if present
-  weightLog = weightLog.filter(e => e.date !== today);
-  weightLog.push({ date: today, kg: val });
+  if (!date) return;
+  // remove existing entry for this date if present
+  weightLog = weightLog.filter(e => e.date !== date);
+  weightLog.push({ date, kg: val });
   weightLog.sort((a, b) => a.date.localeCompare(b.date));
   document.getElementById('weightModal').classList.remove('open');
   renderWeightChart();
@@ -2067,7 +2075,7 @@ function renderWeightEntries() {
   if (!weightLog.length) { el.innerHTML = ''; return; }
   const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
   const recent = [...weightLog].reverse().slice(0, 7);
-  el.innerHTML = recent.map((e, i) => {
+  const rows = recent.map((e, i) => {
     const prev = recent[i + 1];
     let deltaHtml = '';
     if (prev) {
@@ -2075,15 +2083,37 @@ function renderWeightEntries() {
       const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'same';
       deltaHtml = `<span class="weight-entry-delta ${cls}">${d > 0 ? '+' : ''}${d} кг</span>`;
     }
-    const dt = new Date(e.date);
-    const label = `${dt.getDate()} ${months[dt.getMonth()]}`;
+    const dt = new Date(e.date + 'T12:00:00');
+    const isToday = e.date === new Date().toISOString().split('T')[0];
+    const label = isToday ? 'Сегодня' : `${dt.getDate()} ${months[dt.getMonth()]}`;
     return `<div class="weight-entry-row">
       <span class="weight-entry-date">${label}</span>
       <span class="weight-entry-val">${e.kg} кг</span>
       ${deltaHtml}
-      <button class="weight-del-btn" onclick="deleteWeightEntry('${e.date}')"><i class="ph ph-trash"></i></button>
+      <button class="weight-del-btn" title="Редактировать" onclick="openWeightModal('${e.date}')"><i class="ph ph-pencil-simple"></i></button>
+      <button class="weight-del-btn" title="Удалить" onclick="deleteWeightEntry('${e.date}')"><i class="ph ph-trash"></i></button>
     </div>`;
   }).join('');
+
+  // Quick-pick for past days without entry
+  const today = new Date();
+  const pastDays = [];
+  for (let i = 1; i <= 6; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    if (!weightLog.find(e => e.date === key)) {
+      pastDays.push({ key, label: `${d.getDate()} ${months[d.getMonth()]}` });
+    }
+  }
+  const pastHtml = pastDays.length ? `
+    <div class="weight-past-row">
+      <span class="weight-past-lbl">Добавить за:</span>
+      ${pastDays.slice(0,4).map(d =>
+        `<button class="weight-past-btn" onclick="openWeightModal('${d.key}')">${d.label}</button>`
+      ).join('')}
+    </div>` : '';
+
+  el.innerHTML = rows + pastHtml;
 }
 
 /* ══════════════════════════════════════

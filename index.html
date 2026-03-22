@@ -13,6 +13,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="dark.css">
+<script>
+/* ── Тёмная тема: инициализация до рендера (без мигания) ── */
+(function() {
+  var saved = localStorage.getItem('kinetika-theme');
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (saved === 'dark' || (saved === null && prefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+
+function applyTheme(dark) {
+  var html = document.documentElement;
+  var icon = document.getElementById('theme-toggle-icon');
+  html.classList.add('theme-transition');
+  setTimeout(function() { html.classList.remove('theme-transition'); }, 300);
+  if (dark) {
+    html.setAttribute('data-theme', 'dark');
+    if (icon) icon.className = 'ph ph-sun';
+  } else {
+    html.removeAttribute('data-theme');
+    if (icon) icon.className = 'ph ph-moon';
+  }
+  localStorage.setItem('kinetika-theme', dark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+}
+</script>
 </head>
 <body>
 
@@ -339,10 +370,16 @@
 <div class="modal-wrap" id="weightModal">
   <div class="modal-box" style="width:360px">
     <span class="m-icon">⚖️</span>
-    <div class="m-title">Вес сегодня</div>
-    <div style="margin-bottom:var(--sp5)">
-      <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:8px">Масса тела (кг)</label>
-      <input class="log-input" id="weight-input" type="number" step="0.1" placeholder="82.5" style="font-size:22px;font-weight:700;text-align:center;padding:14px">
+    <div class="m-title">Записать вес</div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp4);margin-bottom:var(--sp5)">
+      <div>
+        <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:8px">Дата</label>
+        <input class="log-input" id="weight-date-input" type="date" style="font-size:14px;font-weight:600">
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:8px">Масса тела (кг)</label>
+        <input class="log-input" id="weight-input" type="number" step="0.1" placeholder="82.5" style="font-size:22px;font-weight:700;text-align:center;padding:14px">
+      </div>
     </div>
     <div class="m-btns">
       <button class="m-btn cancel" onclick="document.getElementById('weightModal').classList.remove('open')">Отмена</button>
@@ -404,10 +441,10 @@
       <button class="sb-item" id="nav-diet" onclick="switchTo('diet')">
         <span class="sb-item-icon"><i class="ph ph-fork-knife"></i></span>Питание
       </button>
-      <span class="sb-nav-lbl">Магазин</span>
       <button class="sb-item" id="nav-shop" onclick="switchTo('shop')">
         <span class="sb-item-icon"><i class="ph ph-shopping-cart"></i></span>Добавки<span class="sb-badge" id="cart-badge" style="display:none">0</span>
       </button>
+      <span class="sb-nav-lbl">Прочее</span>
       <button class="sb-item" id="nav-rating" onclick="switchTo('rating')">
         <span class="sb-item-icon"><i class="ph ph-trophy"></i></span>Рейтинг
       </button>
@@ -429,6 +466,9 @@
       <div class="tb-left">
         <span class="tb-title" id="tb-title">Программы тренировок</span>
       </div>
+      <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Сменить тему">
+        <i class="ph ph-moon" id="theme-toggle-icon"></i>
+      </button>
     </div>
 
     <div class="scroll-area">
@@ -889,5 +929,14 @@
 </div>
 
 <script src="app.js"></script>
+<script>
+/* Синхронизация иконки кнопки темы после загрузки DOM */
+document.addEventListener('DOMContentLoaded', function() {
+  var icon = document.getElementById('theme-toggle-icon');
+  if (!icon) return;
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  icon.className = isDark ? 'ph ph-sun' : 'ph ph-moon';
+});
+</script>
 </body>
 </html>

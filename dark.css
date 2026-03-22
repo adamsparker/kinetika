@@ -1,0 +1,704 @@
+/* ══════════════════════════════════════
+   KINETIKA PRO — dark.css  v3
+   Нейтральная тёмная тема: чистый серый,
+   без тёплых или синих подтонов.
+══════════════════════════════════════ */
+
+/* ════════════════════════════════════
+   1. CSS-ПЕРЕМЕННЫЕ
+════════════════════════════════════ */
+[data-theme="dark"] {
+  /* Фоны — чистый нейтральный серый, 4 уровня */
+  --bg:           #111113;
+  --surface:      #18191c;
+  --card:         #202124;
+  --card-alt:     #27282c;
+
+  /* Границы */
+  --border:       #33353a;
+  --border-light: #2a2c30;
+
+  /* Текст */
+  --t1:  #e8e9ea;   /* основной — чистый почти-белый   */
+  --t2:  #868990;   /* вторичный                        */
+  --t3:  #4e5158;   /* третичный — метки, плейсхолдеры */
+
+  /* «Чернила» — инвертируются в тёмной теме */
+  --ink: #e8e9ea;
+
+  /* Акценты — насыщенные, хорошо видны на сером */
+  --amber:        #d98a2e;
+  --amber-light:  #27241f;
+  --amber-border: #3a2a0e;
+
+  --sage:         #4e8f68;
+  --sage-light:   #19271f;
+
+  --slate:        #4a72a0;
+  --slate-light:  #0d1824;
+
+  --plum:         #8a6898;
+  --plum-light:   #1a1020;
+
+  --rust:         #c04038;
+  --rust-light:   #200c0a;
+
+  --gold:         #c09018;
+  --gold-light:   #2f2a18;
+
+  /* Тени */
+  --sh-sm: 0 1px 3px rgba(0,0,0,.4);
+  --sh-md: 0 4px 16px rgba(0,0,0,.5);
+  --sh-lg: 0 12px 40px rgba(0,0,0,.65);
+}
+
+/* ════════════════════════════════════
+   2. ГЛОБАЛ
+════════════════════════════════════ */
+[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--t1);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Плавный переход при смене темы */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    color .18s ease,
+    box-shadow .22s ease !important;
+}
+
+/* ════════════════════════════════════
+   3. КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ
+════════════════════════════════════ */
+.theme-toggle-btn {
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--card-alt);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--t2); font-size: 17px;
+  transition: background .15s, color .15s, border-color .15s;
+  flex-shrink: 0;
+}
+.theme-toggle-btn:hover { background: var(--border); color: var(--t1); }
+
+/* ════════════════════════════════════
+   4. AUTH
+════════════════════════════════════ */
+[data-theme="dark"] #auth-gate { background: rgba(0,0,0,.75); }
+[data-theme="dark"] .auth-box { background: var(--card); border-color: var(--border); box-shadow: 0 32px 80px rgba(0,0,0,.7); }
+[data-theme="dark"] .auth-hero::after { background: rgba(0,0,0,.65); }
+[data-theme="dark"] .auth-tabs { background: var(--surface); }
+[data-theme="dark"] .auth-tab { color: var(--t2); }
+[data-theme="dark"] .auth-tab.active { background: var(--card-alt); color: var(--t1); box-shadow: var(--sh-sm); }
+[data-theme="dark"] .auth-input { background: var(--surface); border-color: var(--border); color: var(--t1); }
+[data-theme="dark"] .auth-input:focus { border-color: var(--t2); }
+[data-theme="dark"] .auth-input::placeholder { color: var(--t3); }
+[data-theme="dark"] .auth-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .auth-btn:hover { opacity: .88; }
+[data-theme="dark"] .auth-guest { background: none; border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .auth-guest:hover { border-color: var(--t2); color: var(--t1); }
+[data-theme="dark"] .auth-divider::before,
+[data-theme="dark"] .auth-divider::after { background: var(--border); }
+[data-theme="dark"] .auth-divider span { color: var(--t3); }
+
+/* ════════════════════════════════════
+   5. ONBOARDING
+════════════════════════════════════ */
+[data-theme="dark"] .ob-wrap { background: rgba(0,0,0,.65); }
+[data-theme="dark"] .ob-box { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .ob-wordmark { color: var(--t3); }
+[data-theme="dark"] .ob-wordmark em { color: var(--t2); }
+[data-theme="dark"] .ob-dot { background: var(--border); }
+[data-theme="dark"] .ob-dot.done { background: var(--t1); }
+[data-theme="dark"] .ob-q { color: var(--t1); }
+[data-theme="dark"] .ob-q em { color: var(--t2); }
+[data-theme="dark"] .ob-hint { color: var(--t3); }
+[data-theme="dark"] .ob-opt { background: var(--surface); border-color: var(--border); color: var(--t1); }
+[data-theme="dark"] .ob-opt:hover { background: var(--card-alt); border-color: var(--t3); }
+[data-theme="dark"] .ob-opt.sel { background: var(--t1); border-color: var(--t1); color: var(--bg); }
+[data-theme="dark"] .ob-opt-sub { opacity: .55; }
+[data-theme="dark"] .ob-opt.sel .ob-opt-sub { opacity: .6; }
+[data-theme="dark"] .ob-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .ob-btn:disabled { opacity: .2; }
+[data-theme="dark"] .ob-skip { background: none; border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .ob-skip:hover { border-color: var(--t3); color: var(--t1); }
+[data-theme="dark"] .ob-close-btn { background: var(--card-alt); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .ob-close-btn:hover { background: var(--border); color: var(--t1); }
+[data-theme="dark"] .ob-results-banner { background: var(--card-alt); border: 1px solid var(--border); }
+[data-theme="dark"] .ob-results-tag { background: rgba(255,255,255,.08); color: var(--t1); }
+[data-theme="dark"] .ob-trigger-bar { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .ob-trigger-bar span { color: var(--t2); }
+[data-theme="dark"] .ob-trigger-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .ob-trigger-btn:hover { opacity: .88; }
+[data-theme="dark"] .ob-trigger-btn.sec { background: rgba(255,255,255,.07); color: var(--t1); }
+[data-theme="dark"] .ob-trigger-btn.sec:hover { background: rgba(255,255,255,.12); }
+
+/* ════════════════════════════════════
+   6. SIDEBAR
+════════════════════════════════════ */
+[data-theme="dark"] .sidebar { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .sb-top { border-color: var(--border); }
+[data-theme="dark"] .sb-wordmark { color: var(--t1); }
+[data-theme="dark"] .sb-wordmark em { color: var(--t2); }
+[data-theme="dark"] .sb-profile:hover { background: rgba(255,255,255,.04); }
+[data-theme="dark"] .sb-profile-name { color: var(--t1); }
+[data-theme="dark"] .sb-profile-sub { color: var(--t3); }
+[data-theme="dark"] .sb-plan-chip { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .sb-plan-chip:hover { opacity: .88; }
+[data-theme="dark"] .sb-no-plan { background: var(--card); border-color: var(--border); color: var(--t3); }
+[data-theme="dark"] .sb-no-plan:hover { border-color: var(--t3); color: var(--t2); }
+[data-theme="dark"] .sb-rating-mini { background: var(--gold-light); border-color: rgba(192,144,24,.2); }
+[data-theme="dark"] .sb-rating-mini:hover { background: #201900; }
+[data-theme="dark"] .sb-rating-mini span { color: var(--t1); }
+[data-theme="dark"] .sb-rating-mini b { color: var(--gold); }
+[data-theme="dark"] .sb-nav-lbl { color: var(--t3); }
+[data-theme="dark"] .sb-item { color: var(--t2); }
+[data-theme="dark"] .sb-item:hover { background: rgba(255,255,255,.05); color: var(--t1); }
+[data-theme="dark"] .sb-item.active { background: var(--card-alt); color: var(--t1); }
+[data-theme="dark"] .sb-item-icon { background: rgba(255,255,255,.06); }
+[data-theme="dark"] .sb-item:hover .sb-item-icon { background: rgba(255,255,255,.09); }
+[data-theme="dark"] .sb-item.active .sb-item-icon { background: rgba(255,255,255,.1); }
+[data-theme="dark"] .sb-badge { background: rgba(255,255,255,.07); color: var(--t2); }
+[data-theme="dark"] .sb-item.active .sb-badge { background: rgba(255,255,255,.12); color: var(--t1); }
+[data-theme="dark"] .sb-overlay { background: rgba(0,0,0,.6); }
+
+/* ════════════════════════════════════
+   7. TOPBAR / FILTERS
+════════════════════════════════════ */
+[data-theme="dark"] .topbar { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .tb-menu-btn { background: var(--card-alt); border-color: var(--border); color: var(--t1); }
+[data-theme="dark"] .tb-title { color: var(--t1); }
+[data-theme="dark"] .f-chip { background: var(--card); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .f-chip:hover { border-color: var(--t3); color: var(--t1); }
+[data-theme="dark"] .f-chip.active { background: var(--t1); color: var(--bg); border-color: var(--t1); }
+
+/* ════════════════════════════════════
+   8. MOBILE NAV / FAB
+════════════════════════════════════ */
+[data-theme="dark"] .mobile-nav { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .mn-item { color: var(--t3); background: none; border: none; }
+[data-theme="dark"] .mn-item.active { color: var(--t1); }
+[data-theme="dark"] .fab { background: var(--t1); color: var(--bg); box-shadow: 0 4px 18px rgba(0,0,0,.6); }
+
+/* ════════════════════════════════════
+   9. SECTION HEADERS
+════════════════════════════════════ */
+[data-theme="dark"] .sec-hd { background: var(--bg); }
+[data-theme="dark"] .sec-hd-title { color: var(--t1); }
+[data-theme="dark"] .sec-hd-sub { color: var(--t3); }
+[data-theme="dark"] .sec-hd-btn { background: var(--card); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .sec-hd-btn:hover { background: var(--card-alt); color: var(--t1); }
+
+/* ════════════════════════════════════
+   10. PROGRAMS
+════════════════════════════════════ */
+[data-theme="dark"] .prog-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .prog-card:hover { box-shadow: var(--sh-lg); }
+[data-theme="dark"] .pc-title { color: var(--t1); }
+[data-theme="dark"] .pc-desc { color: var(--t2); }
+[data-theme="dark"] .pc-meta { color: var(--t3); }
+[data-theme="dark"] .feat-overlay {
+  background: linear-gradient(to top, rgba(17,17,19,.95) 0%, rgba(17,17,19,.25) 100%);
+}
+
+/* ════════════════════════════════════
+   11. DETAIL OVERLAY
+════════════════════════════════════ */
+[data-theme="dark"] .detail-wrap { background: rgba(0,0,0,.75); }
+[data-theme="dark"] .detail-panel { background: var(--card); border-left: 1px solid var(--border); }
+[data-theme="dark"] .dh-overlay {
+  background: linear-gradient(to bottom, transparent 20%, rgba(13,13,15,.92) 100%);
+}
+[data-theme="dark"] .d-close {
+  background: rgba(32,33,36,.85);
+  border-color: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7);
+}
+[data-theme="dark"] .d-close:hover { background: rgba(32,33,36,1); color: #fff; }
+[data-theme="dark"] .d-title { color: var(--t1); }
+[data-theme="dark"] .d-desc { color: var(--t2); }
+[data-theme="dark"] .d-stat { background: var(--card-alt); border-color: var(--border); }
+[data-theme="dark"] .d-stat-v { color: var(--t1); }
+[data-theme="dark"] .d-stat-l { color: var(--t3); }
+[data-theme="dark"] .d-sec-lbl { color: var(--t3); }
+[data-theme="dark"] .day-block { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .day-block-hd { color: var(--t1); }
+[data-theme="dark"] .day-block-hd:hover { background: var(--card-alt); }
+[data-theme="dark"] .day-block-type { color: var(--t3); }
+[data-theme="dark"] .ex-icon-box { background: rgba(255,255,255,.06); }
+[data-theme="dark"] .ex-info strong { color: var(--t1); }
+[data-theme="dark"] .ex-info span { color: var(--t3); }
+[data-theme="dark"] .ex-sets { color: var(--t1); }
+[data-theme="dark"] .ex-row { border-color: var(--border-light); }
+[data-theme="dark"] .rec-meal-row { background: var(--sage-light); border-color: rgba(78,143,104,.18); }
+[data-theme="dark"] .rec-meal-info strong { color: var(--t1); }
+[data-theme="dark"] .rec-meal-info span { color: var(--t2); }
+[data-theme="dark"] .rec-s-row { background: var(--amber-light); border-color: var(--amber-border); }
+[data-theme="dark"] .rec-s-row:hover { background: #281c08; }
+[data-theme="dark"] .rec-s-i strong { color: var(--t1); }
+[data-theme="dark"] .rec-s-i span { color: var(--t2); }
+[data-theme="dark"] .d-cta { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .d-cta:hover { opacity: .88; }
+[data-theme="dark"] .d-cta.sec { background: rgba(255,255,255,.07); color: var(--t1); }
+[data-theme="dark"] .d-cta.sec:hover { background: rgba(255,255,255,.12); }
+
+/* ════════════════════════════════════
+   12. MODALS
+════════════════════════════════════ */
+[data-theme="dark"] .modal-wrap { background: rgba(0,0,0,.68); }
+[data-theme="dark"] .modal-box { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .m-title { color: var(--t1); }
+[data-theme="dark"] .m-sub { color: var(--t2); }
+[data-theme="dark"] .m-preview { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .m-prev-icon { background: rgba(255,255,255,.06); }
+[data-theme="dark"] .m-prev-name { color: var(--t1); }
+[data-theme="dark"] .m-prev-meta { color: var(--t3); }
+[data-theme="dark"] .m-btn.confirm { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .m-btn.cancel { background: rgba(255,255,255,.07); color: var(--t1); }
+[data-theme="dark"] .m-btn.danger { background: rgba(192,64,56,.2); color: #f09888; }
+[data-theme="dark"] .m-btn:hover { opacity: .85; }
+
+/* Inputs (shared) */
+[data-theme="dark"] .log-input,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .auth-input,
+[data-theme="dark"] .ex-log-input {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--t1);
+}
+[data-theme="dark"] .log-input:focus,
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .form-select:focus,
+[data-theme="dark"] .ex-log-input:focus { border-color: var(--t2); }
+[data-theme="dark"] .log-input::placeholder,
+[data-theme="dark"] .form-input::placeholder { color: var(--t3); }
+[data-theme="dark"] .form-label { color: var(--t3); }
+[data-theme="dark"] .form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234e5158' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* ════════════════════════════════════
+   13. MY PLAN
+════════════════════════════════════ */
+[data-theme="dark"] .mp-stat { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .mp-sv { color: var(--t1); }
+[data-theme="dark"] .mp-sl { color: var(--t3); }
+[data-theme="dark"] .diet-link { background: var(--amber-light); border-color: var(--amber-border); }
+[data-theme="dark"] .diet-link:hover { background: #281c08; }
+[data-theme="dark"] .dl-info strong { color: var(--t1); }
+[data-theme="dark"] .dl-info span { color: var(--amber); }
+[data-theme="dark"] .mp-tabs,
+[data-theme="dark"] .diet-tabs { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .mp-tab,
+[data-theme="dark"] .diet-tab { color: var(--t2); }
+[data-theme="dark"] .mp-tab.active,
+[data-theme="dark"] .diet-tab.active {
+  background: var(--card-alt);
+  color: var(--t1);
+  box-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+
+/* ════════════════════════════════════
+   14. ACTIVE WEEK TRACKER
+════════════════════════════════════ */
+[data-theme="dark"] .aw-day { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .aw-day.day-complete { background: #0d1f15; border-color: #2e5c3e; }
+[data-theme="dark"] .aw-day-hd:hover { background: rgba(255,255,255,.025); }
+[data-theme="dark"] .aw-day.day-complete .aw-day-hd:hover { background: rgba(78,143,104,.06); }
+[data-theme="dark"] .aw-day-pill { background: rgba(255,255,255,.07); }
+[data-theme="dark"] .aw-dp-d { color: var(--t3); }
+[data-theme="dark"] .aw-dp-n { color: var(--t1); }
+[data-theme="dark"] .aw-day-pill.is-today { background: var(--t1); }
+[data-theme="dark"] .aw-day-pill.is-today .aw-dp-d,
+[data-theme="dark"] .aw-day-pill.is-today .aw-dp-n { color: var(--bg); }
+[data-theme="dark"] .aw-day-pill.is-done { background: var(--sage); }
+[data-theme="dark"] .aw-day-pill.is-done .aw-dp-d,
+[data-theme="dark"] .aw-day-pill.is-done .aw-dp-n { color: #fff; }
+[data-theme="dark"] .aw-day-name { color: var(--t1); }
+[data-theme="dark"] .aw-day.day-complete .aw-day-name { color: var(--sage); }
+[data-theme="dark"] .aw-day-sub { color: var(--t3); }
+[data-theme="dark"] .aw-progress-pill { background: rgba(255,255,255,.07); color: var(--t2); }
+[data-theme="dark"] .aw-day.day-complete .aw-progress-pill { background: var(--sage); color: #fff; }
+[data-theme="dark"] .aw-chevron { color: var(--t3); }
+[data-theme="dark"] .aw-exercises { border-color: var(--border-light); }
+[data-theme="dark"] .aw-ex-row.ex-done { background: #0d1f15; border-color: rgba(78,143,104,.2); }
+[data-theme="dark"] .aw-ex-check-btn { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .aw-ex-check-btn:hover { border-color: var(--sage); background: #0d1f15; }
+[data-theme="dark"] .aw-ex-row.ex-done .aw-ex-check-btn { background: var(--sage); border-color: var(--sage); color: #fff; }
+[data-theme="dark"] .aw-ex-icon { background: rgba(255,255,255,.06); }
+[data-theme="dark"] .aw-ex-row.ex-done .aw-ex-icon { background: rgba(78,143,104,.12); }
+[data-theme="dark"] .aw-ex-name { color: var(--t1); }
+[data-theme="dark"] .aw-ex-row.ex-done .aw-ex-name { color: var(--t3); }
+[data-theme="dark"] .aw-ex-detail { color: var(--t3); }
+[data-theme="dark"] .aw-ex-sets { background: rgba(255,255,255,.07); color: var(--t1); }
+[data-theme="dark"] .aw-ex-row.ex-done .aw-ex-sets { background: var(--sage); color: #fff; }
+[data-theme="dark"] .aw-finish-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .aw-finish-btn:hover { opacity: .88; }
+[data-theme="dark"] .aw-finish-btn:disabled { opacity: .2; }
+[data-theme="dark"] .ex-log-input { background: var(--surface); border-color: var(--border); color: var(--t1); }
+[data-theme="dark"] .ex-log-sep { color: var(--t3); }
+[data-theme="dark"] .aw-ex-row.ex-done .ex-log-input { background: rgba(78,143,104,.08); border-color: rgba(78,143,104,.22); }
+[data-theme="dark"] .aw-rest-btn { background: var(--surface); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .aw-rest-btn:hover { background: var(--amber-light); border-color: var(--amber-border); color: var(--amber); }
+
+/* ════════════════════════════════════
+   15. DIET
+════════════════════════════════════ */
+[data-theme="dark"] .diet-day-lbl { color: var(--t2); }
+[data-theme="dark"] .ms-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .ms-val { color: var(--t1); }
+[data-theme="dark"] .ms-lbl { color: var(--t3); }
+[data-theme="dark"] .ms-bar { background: rgba(255,255,255,.07); }
+[data-theme="dark"] .ms-target { color: var(--t3); }
+[data-theme="dark"] .diet-add-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .diet-add-btn:hover { opacity: .88; }
+[data-theme="dark"] .meal-row { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .meal-row:hover { box-shadow: var(--sh-md); }
+[data-theme="dark"] .meal-ico { background: var(--card-alt); }
+[data-theme="dark"] .meal-time { color: var(--t3); }
+[data-theme="dark"] .meal-name { color: var(--t1); }
+[data-theme="dark"] .meal-mac { color: var(--t2); }
+[data-theme="dark"] .meal-kcal { color: var(--t1); }
+[data-theme="dark"] .meal-kcal small { color: var(--t3); }
+[data-theme="dark"] .del-meal-btn { color: var(--t3); }
+[data-theme="dark"] .del-meal-btn:hover { color: var(--rust); }
+[data-theme="dark"] .meal-group-lbl { color: var(--t3); }
+[data-theme="dark"] .plan-badge { background: var(--card-alt); border: 1px solid var(--border); }
+[data-theme="dark"] .pb-pill { background: rgba(255,255,255,.1); color: var(--t1); }
+[data-theme="dark"] .week-plan-empty { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .week-plan-empty-title { color: var(--t1); }
+[data-theme="dark"] .week-plan-empty-sub { color: var(--t3); }
+[data-theme="dark"] .week-plan-gen-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .week-plan-gen-btn:hover { opacity: .88; }
+[data-theme="dark"] .wp-badge { background: var(--card); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .week-day-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .week-day-hd:hover { background: var(--card-alt); }
+[data-theme="dark"] .week-day-pill { background: var(--t1); }
+[data-theme="dark"] .wdp-d { color: rgba(17,17,19,.5); }
+[data-theme="dark"] .wdp-n { color: var(--bg); }
+[data-theme="dark"] .week-day-name { color: var(--t1); }
+[data-theme="dark"] .week-day-macros { color: var(--t3); }
+[data-theme="dark"] .week-day-kcal { color: var(--t1); }
+[data-theme="dark"] .week-day-chevron { color: var(--t3); }
+[data-theme="dark"] .week-day-meals { border-color: var(--border-light); }
+[data-theme="dark"] .wdm-row { border-color: var(--border-light); }
+[data-theme="dark"] .wdm-time { color: var(--t3); }
+[data-theme="dark"] .wdm-name { color: var(--t1); }
+[data-theme="dark"] .wdm-mac { color: var(--t3); }
+[data-theme="dark"] .wdm-kcal { color: var(--t1); }
+[data-theme="dark"] .wdm-kcal small { color: var(--t3); }
+[data-theme="dark"] .wdm-add-btn { background: var(--sage-light); border-color: rgba(78,143,104,.2); color: var(--sage); }
+[data-theme="dark"] .wdm-add-btn:hover { background: var(--sage); color: #fff; }
+[data-theme="dark"] .wdm-day-btn { background: var(--amber-light); border-color: var(--amber-border); color: var(--amber); }
+[data-theme="dark"] .wdm-day-btn:hover { background: #281c08; }
+[data-theme="dark"] .calc-card-new { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .calc-title { color: var(--t1); }
+[data-theme="dark"] .calc-subtitle { color: var(--t3); }
+[data-theme="dark"] .calc-field label { color: var(--t3); }
+[data-theme="dark"] .meal-drawer { background: rgba(0,0,0,.65); }
+[data-theme="dark"] .meal-drawer-panel { background: var(--card); border-left: 1px solid var(--border); }
+[data-theme="dark"] .meal-drawer-hd { border-color: var(--border); }
+[data-theme="dark"] .meal-search-row { border-color: var(--border-light); }
+[data-theme="dark"] .meal-time-chips { border-color: var(--border-light); }
+[data-theme="dark"] .meal-cat-bar { border-color: var(--border-light); }
+[data-theme="dark"] .meal-custom-row { border-color: var(--border-light); }
+[data-theme="dark"] .meal-custom-btn { background: none; border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .meal-custom-btn:hover { border-color: var(--t2); color: var(--t1); }
+[data-theme="dark"] .food-item { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .food-item:hover { background: var(--card-alt); border-color: var(--t2); }
+[data-theme="dark"] .food-item.just-added { background: var(--sage-light); border-color: var(--sage); }
+[data-theme="dark"] .food-item-name { color: var(--t1); }
+[data-theme="dark"] .food-item-mac { color: var(--t3); }
+[data-theme="dark"] .food-item-kcal { color: var(--t1); }
+[data-theme="dark"] .food-item-add { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .food-item-add:hover { background: var(--sage); color: #fff; }
+
+/* ════════════════════════════════════
+   16. SHOP
+════════════════════════════════════ */
+[data-theme="dark"] .shop-rec { background: var(--amber-light); border-color: var(--amber-border); }
+[data-theme="dark"] .sr-text strong { color: var(--t1); }
+[data-theme="dark"] .sr-text span { color: var(--t2); }
+[data-theme="dark"] .sr-text em { color: var(--amber); }
+[data-theme="dark"] .prod-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .prod-card:hover { box-shadow: var(--sh-lg); }
+[data-theme="dark"] .prod-card.rec { border-color: var(--amber-border); }
+[data-theme="dark"] .prod-card.in-cart { border-color: var(--sage); }
+[data-theme="dark"] .prod-thumb { background: var(--surface); }
+[data-theme="dark"] .p-rec-b { background: var(--amber-light); border-color: var(--amber-border); color: var(--amber); }
+[data-theme="dark"] .p-new-b { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .p-brand { color: var(--t3); }
+[data-theme="dark"] .p-name { color: var(--t1); }
+[data-theme="dark"] .p-desc { color: var(--t2); }
+[data-theme="dark"] .p-price { color: var(--t1); }
+[data-theme="dark"] .p-price small { color: var(--t3); }
+[data-theme="dark"] .add-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .add-btn:hover { opacity: .85; }
+[data-theme="dark"] .add-btn.added { background: var(--sage); color: #fff; }
+[data-theme="dark"] .cart-drawer { background: rgba(0,0,0,.65); }
+[data-theme="dark"] .cart-panel { background: var(--card); border-left: 1px solid var(--border); }
+[data-theme="dark"] .cart-hd { border-color: var(--border); }
+[data-theme="dark"] .cart-hd h3 { color: var(--t1); }
+[data-theme="dark"] .cart-close { color: var(--t2); }
+[data-theme="dark"] .cart-close:hover { background: rgba(255,255,255,.06); }
+[data-theme="dark"] .cart-item { border-color: var(--border-light); }
+[data-theme="dark"] .cart-item-photo { background: var(--surface); }
+[data-theme="dark"] .cart-item-info strong { color: var(--t1); }
+[data-theme="dark"] .cart-item-info span { color: var(--t3); }
+[data-theme="dark"] .cart-item-price { color: var(--t1); }
+[data-theme="dark"] .qty-btn { background: var(--surface); border-color: var(--border); color: var(--t1); }
+[data-theme="dark"] .qty-btn:hover { background: var(--card-alt); }
+[data-theme="dark"] .qty-val { color: var(--t1); }
+[data-theme="dark"] .cart-footer { border-color: var(--border); }
+[data-theme="dark"] .cart-total-lbl { color: var(--t2); }
+[data-theme="dark"] .cart-total-val { color: var(--t1); }
+[data-theme="dark"] .checkout-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .checkout-btn:hover { opacity: .88; }
+[data-theme="dark"] .cart-empty { color: var(--t3); }
+
+/* ════════════════════════════════════
+   17. PROGRESS
+════════════════════════════════════ */
+[data-theme="dark"] .progress-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .progress-card-hd-title { color: var(--t1); }
+[data-theme="dark"] .progress-card-hd-btn { background: rgba(255,255,255,.06); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .progress-card-hd-btn:hover { background: rgba(255,255,255,.1); color: var(--t1); }
+[data-theme="dark"] .plog-item { background: rgba(255,255,255,.03); border-color: var(--border-light); }
+[data-theme="dark"] .plog-ex { color: var(--t1); }
+[data-theme="dark"] .plog-meta { color: var(--t3); }
+[data-theme="dark"] .plog-pr { color: var(--amber); }
+[data-theme="dark"] .week-nav-btn { background: var(--card); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .week-nav-btn:hover { background: var(--card-alt); color: var(--t1); }
+[data-theme="dark"] .ses-hd h3 { color: var(--t1); }
+[data-theme="dark"] .ses-hd span { color: var(--t3); }
+[data-theme="dark"] .notif-toggle-track { background: var(--border); }
+[data-theme="dark"] .notif-day-btn { background: var(--surface); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .notif-day-btn.active { background: var(--t1); color: var(--bg); border-color: var(--t1); }
+
+/* ════════════════════════════════════
+   18. RATING / LEADERBOARD
+════════════════════════════════════ */
+[data-theme="dark"] .lb-section-title { color: var(--t1); }
+[data-theme="dark"] .lb-table { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .lb-row { border-color: var(--border-light); }
+[data-theme="dark"] .lb-row:hover { background: var(--card-alt); }
+[data-theme="dark"] .lb-row.me { background: rgba(232,233,234,.03); }
+[data-theme="dark"] .lb-rank { color: var(--t2); }
+[data-theme="dark"] .lb-rank.top { color: var(--gold); }
+[data-theme="dark"] .lb-user-name { color: var(--t1); }
+[data-theme="dark"] .lb-you-badge { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .lb-user-sub { color: var(--t3); }
+[data-theme="dark"] .lb-pts { color: var(--t1); }
+[data-theme="dark"] .lb-pts small { color: var(--t3); }
+[data-theme="dark"] .lb-change.up { color: var(--sage); }
+[data-theme="dark"] .lb-change.down { color: var(--rust); }
+[data-theme="dark"] .lb-change.same { color: var(--t3); }
+[data-theme="dark"] .rating-hero-overlay {
+  background: linear-gradient(to bottom, rgba(17,17,19,.45), rgba(17,17,19,.8));
+}
+
+/* ════════════════════════════════════
+   19. PROFILE
+════════════════════════════════════ */
+[data-theme="dark"] .ph-edit-btn { background: var(--card-alt); border: 1px solid var(--border); color: var(--t1); }
+[data-theme="dark"] .ph-tag { background: rgba(255,255,255,.1); }
+[data-theme="dark"] .pstat { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .pstat-v { color: var(--t1); }
+[data-theme="dark"] .pstat-l { color: var(--t3); }
+[data-theme="dark"] .profile-form { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .pf-title { color: var(--t1); }
+[data-theme="dark"] .save-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .save-btn:hover { opacity: .88; }
+[data-theme="dark"] .save-confirm { color: var(--sage); }
+
+/* ════════════════════════════════════
+   20. REST TIMER
+════════════════════════════════════ */
+[data-theme="dark"] .rest-timer-overlay { background: rgba(0,0,0,.82); }
+[data-theme="dark"] .rest-timer-box { background: var(--card); border: 1px solid var(--border); }
+[data-theme="dark"] .rt-label { color: var(--t3); }
+[data-theme="dark"] .rt-track { stroke: var(--border); }
+[data-theme="dark"] .rt-progress { stroke: var(--t1); }
+[data-theme="dark"] .rt-time { color: var(--t1); }
+[data-theme="dark"] .rt-ex-name { color: var(--t2); }
+[data-theme="dark"] .rt-btn-skip { background: var(--surface); border-color: var(--border); color: var(--t2); }
+[data-theme="dark"] .rt-btn-skip:hover { background: var(--card-alt); color: var(--t1); }
+[data-theme="dark"] .rt-btn-plus { background: var(--sage-light); border-color: rgba(78,143,104,.25); color: var(--sage); }
+[data-theme="dark"] .rt-btn-plus:hover { background: var(--sage); color: #fff; }
+[data-theme="dark"] .rt-close { background: var(--card-alt); border-color: var(--border); color: var(--t3); }
+[data-theme="dark"] .rt-close:hover { background: var(--border); color: var(--t1); }
+
+/* ════════════════════════════════════
+   21. WAKELOCK BADGE
+════════════════════════════════════ */
+[data-theme="dark"] .wakelock-badge {
+  background: rgba(32,33,36,.92);
+  color: rgba(232,233,234,.8);
+}
+
+/* ════════════════════════════════════
+   22. ТОЧЕЧНЫЕ ФИКСЫ
+════════════════════════════════════ */
+
+/* ── feat-cta: белая кнопка на баннере невидима — делаем тёмной ── */
+[data-theme="dark"] .feat-cta {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,.3);
+  backdrop-filter: blur(6px);
+}
+[data-theme="dark"] .feat-cta:hover {
+  background: rgba(255,255,255,.25);
+  opacity: 1;
+}
+
+/* ── Profile hero: bg слишком светлый — понижаем opacity фото ── */
+[data-theme="dark"] .profile-hero {
+  background: #1a1b1f;
+}
+[data-theme="dark"] .profile-hero-bg {
+  opacity: .1;
+  filter: grayscale(.4);
+}
+
+/* ── pill-классы программ: светлые bg не работают на тёмном ── */
+[data-theme="dark"] .p-strength   { background: rgba(78,143,104,.18); color: #6dbf8a; }
+[data-theme="dark"] .p-hypertrophy{ background: rgba(74,114,154,.18); color: #7aaad4; }
+[data-theme="dark"] .p-cardio     { background: rgba(192,64,56,.18);  color: #e07870; }
+[data-theme="dark"] .p-mma        { background: rgba(138,104,152,.18);color: #c0a0cc; }
+[data-theme="dark"] .p-endurance  { background: rgba(42,92,78,.22);   color: #60b09a; }
+
+/* ── c-chip (нижние чипы карточки программы) ── */
+[data-theme="dark"] .c-chip {
+  background: rgba(255,255,255,.06);
+  border-color: var(--border);
+  color: var(--t2);
+}
+
+/* ── card-chips detail tags ── */
+[data-theme="dark"] .d-tag {
+  background: rgba(255,255,255,.06);
+  border-color: var(--border);
+  color: var(--t2);
+}
+
+/* ── week-item (блоки фаз в детали программы) ── */
+[data-theme="dark"] .week-item {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .wn {
+  background: rgba(255,255,255,.07);
+  color: var(--t2);
+}
+[data-theme="dark"] .wi strong { color: var(--t1); }
+[data-theme="dark"] .wi span   { color: var(--t3); }
+[data-theme="dark"] .wd        { color: var(--t3); }
+
+/* ── schedule-week-num ── */
+[data-theme="dark"] .schedule-week-num {
+  background: rgba(255,255,255,.07);
+  color: var(--t3);
+}
+[data-theme="dark"] .schedule-week-title { color: var(--t1); }
+
+/* ── day-pill в расписании ── */
+[data-theme="dark"] .day-pill.rest-day { background: rgba(255,255,255,.06); }
+[data-theme="dark"] .day-pill.rest-day .dp-label,
+[data-theme="dark"] .day-pill.rest-day .dp-num { color: var(--t3); }
+[data-theme="dark"] .day-pill.train-day { background: var(--t1); }
+[data-theme="dark"] .day-pill.train-day .dp-label,
+[data-theme="dark"] .day-pill.train-day .dp-num { color: var(--bg); }
+
+/* ── active-ribbon на карточке ── */
+[data-theme="dark"] .active-ribbon {
+  background: var(--t1);
+  color: var(--bg);
+}
+
+/* ── meal-time-chip.active / meal-cat-btn.active:
+      --ink теперь светлый → текст должен быть тёмным ── */
+[data-theme="dark"] .meal-time-chip {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--t2);
+}
+[data-theme="dark"] .meal-time-chip:hover { border-color: var(--t3); color: var(--t1); }
+[data-theme="dark"] .meal-time-chip.active {
+  background: var(--t1);
+  color: var(--bg);
+  border-color: var(--t1);
+}
+
+[data-theme="dark"] .meal-cat-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--t2);
+}
+[data-theme="dark"] .meal-cat-btn:hover { border-color: var(--t3); color: var(--t1); }
+[data-theme="dark"] .meal-cat-btn.active {
+  background: var(--t1);
+  color: var(--bg);
+  border-color: var(--t1);
+}
+
+/* ── meal-search-input ── */
+[data-theme="dark"] .meal-search-input {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--t1);
+}
+[data-theme="dark"] .meal-search-input:focus { border-color: var(--t2); }
+[data-theme="dark"] .meal-search-input::placeholder { color: var(--t3); }
+[data-theme="dark"] .meal-search-icon { color: var(--t3); }
+[data-theme="dark"] .meal-search-clear { color: var(--t3); }
+
+/* ── gram input ── */
+[data-theme="dark"] .meal-gram-input {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--t1);
+}
+[data-theme="dark"] .meal-gram-input:focus { border-color: var(--t2); }
+[data-theme="dark"] .meal-gram-label { color: var(--t3); }
+
+/* ── Замена --sage-light / --amber-light / --amber-border везде где
+      они использованы как цветной фон внутри тёмной темы ─────────
+   Все эти места уже переопределены через CSS-переменные выше,
+   но calc-result и несколько элементов пропустили явный фон. ── */
+
+/* calc-result */
+[data-theme="dark"] .calc-result {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme="dark"] .cr-val { color: var(--t1); }
+[data-theme="dark"] .cr-lbl { color: var(--t3); }
+
+/* calc-btn */
+[data-theme="dark"] .calc-btn { background: var(--t1); color: var(--bg); }
+[data-theme="dark"] .calc-btn:hover { opacity: .88; }
+
+/* calc field inputs */
+[data-theme="dark"] .calc-field input,
+[data-theme="dark"] .calc-field select {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--t1);
+}
+[data-theme="dark"] .calc-field input:focus,
+[data-theme="dark"] .calc-field select:focus { border-color: var(--t2); }
+
+/* diet-link hover уже есть, но убираем amber-light с hover shop-rec */
+[data-theme="dark"] .shop-rec:hover { background: #241b08; }
+
+/* ── prog-card.is-active border ── */
+[data-theme="dark"] .prog-card.is-active { border-color: var(--t2); }
+[data-theme="dark"] .prog-card:hover { border-color: var(--border); }
