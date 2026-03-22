@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Form Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     AUTH GATE
+════════════════════════════════════ -->
+<div id="auth-gate">
+  <div class="auth-box">
+    <div class="auth-hero">
+      <img class="auth-hero-img" src="assets/ui/auth-hero.jpg" alt="">
+      <div class="auth-logo">Form <em>Studio</em></div>
+      <div class="auth-tagline">Твоя платформа для тренировок, питания и роста</div>
+    </div>
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="authTab('login',this)">Войти</button>
+        <button class="auth-tab" onclick="authTab('register',this)">Регистрация</button>
+      </div>
+      <!-- LOGIN -->
+      <div class="auth-form active" id="auth-login">
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" id="login-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="auth-field">
+          <label>Пароль</label>
+          <input class="auth-input" id="login-pass" type="password" placeholder="••••••••">
+        </div>
+        <div class="auth-error" id="login-error">Заполните все поля</div>
+        <button class="auth-btn" onclick="doLogin()">Войти</button>
+        <div class="auth-divider"><span>или</span></div>
+        <button class="auth-guest" onclick="doGuest()">Продолжить без регистрации</button>
+      </div>
+      <!-- REGISTER -->
+      <div class="auth-form" id="auth-register">
+        <div class="auth-field">
+          <label>Имя</label>
+          <input class="auth-input" id="reg-name" type="text" placeholder="Алексей">
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" id="reg-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="auth-field">
+          <label>Пароль</label>
+          <input class="auth-input" id="reg-pass" type="password" placeholder="Минимум 6 символов">
+        </div>
+        <div class="auth-error" id="reg-error">Заполните все поля (пароль ≥ 6 символов)</div>
+        <button class="auth-btn" onclick="doRegister()">Создать аккаунт</button>
+        <div class="auth-divider"><span>или</span></div>
+        <button class="auth-guest" onclick="doGuest()">Продолжить без регистрации</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     ONBOARDING — Программы (3 шага)
+════════════════════════════════════ -->
+<div class="ob-wrap" id="ob-plans">
+  <div class="ob-box">
+    <button class="ob-close-btn" onclick="skipOb('ob-plans')"><i class="ph ph-x"></i></button>
+    <div class="ob-wordmark">Form <em>Studio</em></div>
+    <div class="ob-dots">
+      <div class="ob-dot done" id="p-d0"></div>
+      <div class="ob-dot" id="p-d1"></div>
+      <div class="ob-dot" id="p-d2"></div>
+    </div>
+
+    <!-- Шаг 0: Цель -->
+    <div class="ob-step active" id="p-s0">
+      <div class="ob-q">Какая твоя <em>главная цель?</em></div>
+      <div class="ob-hint">Мы подберём и выделим подходящие программы тренировок.</div>
+      <div class="ob-grid">
+        <button class="ob-opt" onclick="pickOb('plans',this,'goal','strength')"><span class="ob-opt-icon">🏋️</span><span class="ob-opt-label">Сила</span><span class="ob-opt-sub">Базовые движения</span></button>
+        <button class="ob-opt" onclick="pickOb('plans',this,'goal','muscle')"><span class="ob-opt-icon">💪</span><span class="ob-opt-label">Набор мышц</span><span class="ob-opt-sub">Гипертрофия</span></button>
+        <button class="ob-opt" onclick="pickOb('plans',this,'goal','fat')"><span class="ob-opt-icon">🔥</span><span class="ob-opt-label">Сжечь жир</span><span class="ob-opt-sub">Сушка</span></button>
+        <button class="ob-opt" onclick="pickOb('plans',this,'goal','endurance')"><span class="ob-opt-icon">🏃</span><span class="ob-opt-label">Выносливость</span><span class="ob-opt-sub">Кардио / MMA</span></button>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" id="p-n0" disabled onclick="nextObStep('plans',1)">Далее →</button>
+        <button class="ob-skip" onclick="skipOb('ob-plans')">Пропустить</button>
+      </div>
+    </div>
+
+    <!-- Шаг 1: Уровень -->
+    <div class="ob-step" id="p-s1">
+      <div class="ob-q">Твой <em>уровень?</em></div>
+      <div class="ob-hint">Честный ответ даст лучший результат.</div>
+      <div class="ob-grid">
+        <button class="ob-opt" onclick="pickOb('plans',this,'level','beginner')"><span class="ob-opt-icon">🌱</span><span class="ob-opt-label">Начинающий</span><span class="ob-opt-sub">До 1 года</span></button>
+        <button class="ob-opt" onclick="pickOb('plans',this,'level','intermediate')"><span class="ob-opt-icon">⚡</span><span class="ob-opt-label">Средний</span><span class="ob-opt-sub">1–3 года</span></button>
+        <button class="ob-opt" onclick="pickOb('plans',this,'level','advanced')"><span class="ob-opt-icon">🔩</span><span class="ob-opt-label">Продвинутый</span><span class="ob-opt-sub">3+ лет</span></button>
+        <button class="ob-opt" onclick="pickOb('plans',this,'level','returning')"><span class="ob-opt-icon">🔄</span><span class="ob-opt-label">Возврат</span><span class="ob-opt-sub">Был перерыв</span></button>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" id="p-n1" disabled onclick="nextObStep('plans',2)">Далее →</button>
+        <button class="ob-skip" onclick="skipOb('ob-plans')">Пропустить</button>
+      </div>
+    </div>
+
+    <!-- Шаг 2: Дни -->
+    <div class="ob-step" id="p-s2">
+      <div class="ob-q">Сколько <em>дней в неделю?</em></div>
+      <div class="ob-hint">Выбери то, чему можешь следовать стабильно.</div>
+      <div class="ob-grid four">
+        <button class="ob-opt" style="text-align:center" onclick="pickOb('plans',this,'days','2')"><span class="ob-opt-label" style="font-size:22px">2</span><span class="ob-opt-sub">дня</span></button>
+        <button class="ob-opt" style="text-align:center" onclick="pickOb('plans',this,'days','3')"><span class="ob-opt-label" style="font-size:22px">3</span><span class="ob-opt-sub">дня</span></button>
+        <button class="ob-opt" style="text-align:center" onclick="pickOb('plans',this,'days','4')"><span class="ob-opt-label" style="font-size:22px">4</span><span class="ob-opt-sub">дня</span></button>
+        <button class="ob-opt" style="text-align:center" onclick="pickOb('plans',this,'days','5+')"><span class="ob-opt-label" style="font-size:22px">5+</span><span class="ob-opt-sub">дней</span></button>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" id="p-n2" disabled onclick="finishOb('plans')">Найти программы →</button>
+        <button class="ob-skip" onclick="skipOb('ob-plans')">Пропустить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     ONBOARDING — Питание (3 шага)
+════════════════════════════════════ -->
+<div class="ob-wrap" id="ob-diet">
+  <div class="ob-box">
+    <button class="ob-close-btn" onclick="skipOb('ob-diet')"><i class="ph ph-x"></i></button>
+    <div class="ob-wordmark">Form <em>Studio</em> · Питание</div>
+    <div class="ob-dots">
+      <div class="ob-dot done" id="d-d0"></div>
+      <div class="ob-dot" id="d-d1"></div>
+      <div class="ob-dot" id="d-d2"></div>
+    </div>
+
+    <!-- Шаг 0: Тип питания -->
+    <div class="ob-step active" id="d-s0">
+      <div class="ob-q">Тип <em>питания?</em></div>
+      <div class="ob-hint">Настроим макросы и подберём блюда под твой рацион.</div>
+      <div class="ob-grid">
+        <button class="ob-opt" onclick="pickOb('diet',this,'diet_type','standard')"><span class="ob-opt-icon">🍽️</span><span class="ob-opt-label">Стандартное</span><span class="ob-opt-sub">Баланс БЖУ</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'diet_type','high_protein')"><span class="ob-opt-icon">🥩</span><span class="ob-opt-label">Высокобелковое</span><span class="ob-opt-sub">2+ г/кг</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'diet_type','vegan')"><span class="ob-opt-icon">🌱</span><span class="ob-opt-label">Веганское</span><span class="ob-opt-sub">Растительный белок</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'diet_type','keto')"><span class="ob-opt-icon">🥑</span><span class="ob-opt-label">Низкоуглеводное</span><span class="ob-opt-sub">Кето / палео</span></button>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" id="d-n0" disabled onclick="nextObStep('diet',1)">Далее →</button>
+        <button class="ob-skip" onclick="skipOb('ob-diet')">Пропустить</button>
+      </div>
+    </div>
+
+    <!-- Шаг 1: Калорийность -->
+    <div class="ob-step" id="d-s1">
+      <div class="ob-q">Цель по <em>калориям?</em></div>
+      <div class="ob-hint">Мы скорректируем нормы БЖУ автоматически.</div>
+      <div class="ob-grid">
+        <button class="ob-opt" onclick="pickOb('diet',this,'kcal','deficit')"><span class="ob-opt-icon">📉</span><span class="ob-opt-label">Дефицит</span><span class="ob-opt-sub">−400 ккал</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'kcal','maintenance')"><span class="ob-opt-icon">⚖️</span><span class="ob-opt-label">Поддержание</span><span class="ob-opt-sub">Текущий вес</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'kcal','surplus')"><span class="ob-opt-icon">📈</span><span class="ob-opt-label">Профицит</span><span class="ob-opt-sub">+400 ккал</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'kcal','auto')"><span class="ob-opt-icon">🤖</span><span class="ob-opt-label">Авто</span><span class="ob-opt-sub">По программе</span></button>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" id="d-n1" disabled onclick="nextObStep('diet',2)">Далее →</button>
+        <button class="ob-skip" onclick="skipOb('ob-diet')">Пропустить</button>
+      </div>
+    </div>
+
+    <!-- Шаг 2: Бюджет -->
+    <div class="ob-step" id="d-s2">
+      <div class="ob-q">Бюджет на <em>питание?</em></div>
+      <div class="ob-hint">Подберём блюда под твой кошелёк. Цены ориентировочные, на день.</div>
+      <div class="ob-grid">
+        <button class="ob-opt" onclick="pickOb('diet',this,'budget','low')"><span class="ob-opt-icon">💰</span><span class="ob-opt-label">Экономный</span><span class="ob-opt-sub">до 400 ₽/день</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'budget','medium')"><span class="ob-opt-icon">💳</span><span class="ob-opt-label">Умеренный</span><span class="ob-opt-sub">400–800 ₽/день</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'budget','high')"><span class="ob-opt-icon">💎</span><span class="ob-opt-label">Без ограничений</span><span class="ob-opt-sub">от 800 ₽/день</span></button>
+        <button class="ob-opt" onclick="pickOb('diet',this,'budget','any')"><span class="ob-opt-icon">🤷</span><span class="ob-opt-label">Всё равно</span><span class="ob-opt-sub">Любые блюда</span></button>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" id="d-n2" disabled onclick="finishOb('diet')">Сгенерировать рацион →</button>
+        <button class="ob-skip" onclick="skipOb('ob-diet')">Пропустить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     MEAL LOG DRAWER
+════════════════════════════════════ -->
+<div class="meal-drawer" id="mealDrawer" onclick="maybecloseMealDrawer(event)">
+  <div class="meal-drawer-panel">
+    <div class="meal-drawer-hd">
+      <div>
+        <div class="meal-drawer-title">Добавить приём пищи</div>
+        <div class="meal-drawer-sub" id="meal-drawer-sub">Выбери время и найди продукт</div>
+      </div>
+      <button class="cart-close" onclick="closeMealDrawer()"><i class="ph ph-x" style="font-size:18px"></i></button>
+    </div>
+
+    <!-- Time selector chips -->
+    <div class="meal-time-chips" id="meal-time-chips">
+      <button class="meal-time-chip active" onclick="selectMealTime(this,'Завтрак')">🥣 Завтрак</button>
+      <button class="meal-time-chip" onclick="selectMealTime(this,'Обед')">🍽️ Обед</button>
+      <button class="meal-time-chip" onclick="selectMealTime(this,'Перекус')">🍎 Перекус</button>
+      <button class="meal-time-chip" onclick="selectMealTime(this,'Перед тренировкой')">🍌 Перед трен.</button>
+      <button class="meal-time-chip" onclick="selectMealTime(this,'После тренировки')">🥤 После трен.</button>
+      <button class="meal-time-chip" onclick="selectMealTime(this,'Ужин')">🥩 Ужин</button>
+    </div>
+
+    <!-- Category filter -->
+    <div class="meal-cat-bar">
+      <button class="meal-cat-btn active" onclick="filterFoodCat(this,'all')">Все</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'meal')">🍱 Готовые блюда</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'protein')">🥩 Белки</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'carbs')">🌾 Углеводы</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'dairy')">🥛 Молочное</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'veg')">🥦 Овощи</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'fruit')">🍎 Фрукты</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'fat')">🥑 Жиры</button>
+      <button class="meal-cat-btn" onclick="filterFoodCat(this,'sport')">🥤 Спорт.пит.</button>
+    </div>
+
+    <!-- Search -->
+    <div class="meal-search-row">
+      <div class="meal-search-wrap">
+        <i class="ph ph-magnifying-glass meal-search-icon"></i>
+        <input class="meal-search-input" id="meal-search-input" placeholder="Поиск продукта…" oninput="renderFoodGrid(this.value)">
+        <button class="meal-search-clear" id="meal-search-clear" onclick="clearFoodSearch()" style="display:none"><i class="ph ph-x"></i></button>
+      </div>
+      <div class="meal-gram-wrap">
+        <input class="meal-gram-input" id="meal-gram-input" type="number" value="100" min="1" max="2000" oninput="updateFoodGridCalcs()">
+        <span class="meal-gram-label">г</span>
+      </div>
+    </div>
+
+    <!-- Food grid -->
+    <div class="food-grid" id="food-grid"></div>
+
+    <!-- Quick-add: custom -->
+    <div class="meal-custom-row">
+      <button class="meal-custom-btn" onclick="openCustomMeal()"><i class="ph ph-plus-circle"></i> Добавить своё блюдо</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom meal modal -->
+<div class="modal-wrap" id="customMealModal">
+  <div class="modal-box" style="width:400px">
+    <div class="m-title" style="margin-bottom:var(--sp5);font-size:18px">Своё блюдо</div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp3)">
+      <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:6px">Название</label>
+        <input class="log-input" id="custom-name" type="text" placeholder="Например: домашний суп"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)">
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:6px">Граммов</label>
+          <input class="log-input" id="custom-g" type="number" value="300" placeholder="300"></div>
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:6px">Ккал</label>
+          <input class="log-input" id="custom-kcal" type="number" placeholder="350"></div>
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:6px">Белки (г)</label>
+          <input class="log-input" id="custom-p" type="number" placeholder="30"></div>
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:6px">Углеводы (г)</label>
+          <input class="log-input" id="custom-c" type="number" placeholder="40"></div>
+        <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:6px">Жиры (г)</label>
+          <input class="log-input" id="custom-f" type="number" placeholder="10"></div>
+      </div>
+    </div>
+    <div class="m-btns" style="margin-top:var(--sp5)">
+      <button class="m-btn cancel" onclick="document.getElementById('customMealModal').classList.remove('open')">Отмена</button>
+      <button class="m-btn confirm" onclick="addCustomMeal()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     CART DRAWER
+════════════════════════════════════ -->
+<div class="cart-drawer" id="cartDrawer" onclick="maybeCloseCart(event)">
+  <div class="cart-panel">
+    <div class="cart-hd">
+      <h3>Корзина</h3>
+      <button class="cart-close" onclick="closeCart()"><i class="ph ph-x" style="font-size:18px"></i></button>
+    </div>
+    <div class="cart-body" id="cart-body"></div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-total-row">
+        <span class="cart-total-lbl">Итого</span>
+        <span class="cart-total-val" id="cart-total-val">₽0</span>
+      </div>
+      <button class="checkout-btn" onclick="checkout()">Оформить заказ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     MODALS
+════════════════════════════════════ -->
+<!-- Confirm start -->
+<div class="modal-wrap" id="confirmModal">
+  <div class="modal-box">
+    <span class="m-icon">🚀</span>
+    <div class="m-title">Начать программу?</div>
+    <div class="m-sub">Получишь расписание на неделю, рацион питания и рекомендации по добавкам.</div>
+    <div class="m-preview">
+      <div class="m-prev-icon"><img id="mp-icon" src="" alt=""></div>
+      <div><span class="m-prev-name" id="mp-name">Название</span><span class="m-prev-meta" id="mp-meta"></span></div>
+    </div>
+    <div class="m-btns">
+      <button class="m-btn cancel" onclick="closeConfirm()">Пока нет</button>
+      <button class="m-btn confirm" onclick="startPlan()">Поехали →</button>
+    </div>
+  </div>
+</div>
+<!-- Stop plan -->
+<div class="modal-wrap" id="stopModal">
+  <div class="modal-box">
+    <span class="m-icon">⚠️</span>
+    <div class="m-title">Покинуть программу?</div>
+    <div class="m-sub">Прогресс сохранится. Активная программа и привязанный рацион будут отвязаны.</div>
+    <div class="m-btns">
+      <button class="m-btn cancel" onclick="document.getElementById('stopModal').classList.remove('open')">Продолжить</button>
+      <button class="m-btn danger" onclick="stopPlan()">Покинуть</button>
+    </div>
+  </div>
+</div>
+<!-- Checkout success -->
+<div class="modal-wrap" id="checkoutModal">
+  <div class="modal-box">
+    <span class="m-icon">✅</span>
+    <div class="m-title">Заказ оформлен!</div>
+    <div class="m-sub" id="checkout-summary">Заказ принят. Доставка 2–4 рабочих дня.</div>
+    <div class="m-btns" style="grid-template-columns:1fr">
+      <button class="m-btn confirm" onclick="document.getElementById('checkoutModal').classList.remove('open')">Отлично!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar overlay -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- ════════════════════════════════════
+     APP SHELL
+════════════════════════════════════ -->
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-wordmark">Form <em>Studio</em></div>
+      <div class="sb-profile" onclick="switchTo('profile')">
+        <div class="sb-avatar" id="sb-avatar-el">?</div>
+        <div>
+          <span class="sb-profile-name" id="sb-uname">Войдите в аккаунт</span>
+          <span class="sb-profile-sub" id="sb-usub">Гость</span>
+        </div>
+      </div>
+      <div id="sb-plan-area">
+        <div class="sb-no-plan" onclick="switchTo('plans')">
+          <i class="ph ph-clipboard-text"></i> Нет активной программы
+        </div>
+      </div>
+      <div class="sb-rating-mini" onclick="switchTo('rating')">
+        <i class="ph ph-trophy" style="color:var(--gold);font-size:15px"></i>
+        <span>Рейтинг: <b>#3</b> · 4 210 оч.</span>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <span class="sb-nav-lbl">Тренировки</span>
+      <button class="sb-item active" id="nav-plans" onclick="switchTo('plans')">
+        <span class="sb-item-icon"><i class="ph ph-list-bullets"></i></span>Программы<span class="sb-badge">8</span>
+      </button>
+      <button class="sb-item" id="nav-myplan" onclick="switchTo('myplan')" style="display:none">
+        <span class="sb-item-icon"><i class="ph ph-target"></i></span>Моя программа<span class="sb-badge" id="nav-myplan-b">Нед. 1</span>
+      </button>
+      <span class="sb-nav-lbl">Здоровье</span>
+      <button class="sb-item" id="nav-diet" onclick="switchTo('diet')">
+        <span class="sb-item-icon"><i class="ph ph-fork-knife"></i></span>Питание
+      </button>
+      <span class="sb-nav-lbl">Магазин</span>
+      <button class="sb-item" id="nav-shop" onclick="switchTo('shop')">
+        <span class="sb-item-icon"><i class="ph ph-shopping-cart"></i></span>Добавки<span class="sb-badge" id="cart-badge" style="display:none">0</span>
+      </button>
+      <button class="sb-item" id="nav-rating" onclick="switchTo('rating')">
+        <span class="sb-item-icon"><i class="ph ph-trophy"></i></span>Рейтинг
+      </button>
+      <button class="sb-item" id="nav-profile" onclick="switchTo('profile')">
+        <span class="sb-item-icon"><i class="ph ph-user-circle"></i></span>Профиль
+      </button>
+    </nav>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+    <div class="topbar">
+      <button class="tb-menu-btn" onclick="toggleSidebar()">
+        <i class="ph ph-list" style="font-size:18px;color:var(--t1)"></i>
+      </button>
+      <div class="tb-left">
+        <span class="tb-title" id="tb-title">Программы тренировок</span>
+      </div>
+    </div>
+
+    <div class="scroll-area">
+
+      <!-- ══ PROGRAMS ══ -->
+      <div class="panel active" id="panel-plans">
+        <!-- Featured banner — замени картинку и текст под себя -->
+        <div class="feat">
+          <img class="feat-bg" src="assets/banners/programs-hero.jpg" alt="">
+          <div class="feat-overlay"></div>
+          <div class="feat-text">
+            <span class="feat-eye">👑 Легенда</span>
+            <div class="feat-title">Программа <em>Ронни Колмана</em></div>
+            <p class="feat-desc">8× Мистер Олимпия. «Everybody wanna be a bodybuilder, but don't nobody wanna lift no heavy-ass weights.»</p>
+          </div>
+          <button class="feat-cta" onclick="openDetail('ronnie')">Посмотреть →</button>
+        </div>
+        <div class="sec-hd">
+          <div><div class="sec-hd-title">Все программы</div><div class="sec-hd-sub">8 авторских программ</div></div>
+          <div class="tb-filters" id="prog-filters">
+            <button class="f-chip active" onclick="filterProgs(this,'Все')">Все</button>
+            <button class="f-chip" onclick="filterProgs(this,'Сила')">Сила</button>
+            <button class="f-chip" onclick="filterProgs(this,'Гипертрофия')">Гипертрофия</button>
+            <button class="f-chip" onclick="filterProgs(this,'Кардио')">Кардио</button>
+            <button class="f-chip" onclick="filterProgs(this,'MMA')">MMA</button>
+            <button class="f-chip" onclick="filterProgs(this,'Выносливость')">Выносливость</button>
+          </div>
+        </div>
+        <div class="ob-trigger-bar">
+          <span>🎯 Хочешь получить персональные рекомендации?</span>
+          <button class="ob-trigger-btn" onclick="reopenOb('plans')">Пройти опрос</button>
+        </div>
+        <div class="prog-grid" id="prog-grid"></div>
+      </div>
+
+      <!-- ══ MY PLAN ══ -->
+      <div class="panel" id="panel-myplan">
+        <!-- Hero with real progress -->
+        <div class="mp-hero">
+          <img class="mp-hero-photo" id="mp-hero-photo" src="" alt="">
+          <div class="mp-hero-content">
+            <span class="mp-eye" id="mp-eye-lbl">Активная программа · Неделя 1</span>
+            <div class="mp-title" id="mp-title">—</div>
+            <div class="mp-track"><div class="mp-fill" id="mp-fill" style="width:0%"></div></div>
+            <div class="mp-prow"><span id="mp-week-lbl">Неделя 1</span><span id="mp-pct">0% выполнено</span></div>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div class="mp-stats">
+          <div class="mp-stat"><span class="mp-sv" id="mps-done">0</span><span class="mp-sl">Тренировок</span></div>
+          <div class="mp-stat"><span class="mp-sv" id="mps-left">—</span><span class="mp-sl">Недель осталось</span></div>
+          <div class="mp-stat"><span class="mp-sv" id="mps-freq">—</span><span class="mp-sl">Дней / нед.</span></div>
+          <div class="mp-stat"><span class="mp-sv" id="mp-streak-stat">0</span><span class="mp-sl">Серия 🔥</span></div>
+        </div>
+        <!-- Diet link -->
+        <div class="diet-link" onclick="switchTo('diet')">
+          <span class="dl-icon">🍽️</span>
+          <div class="dl-info">
+            <strong>Питание привязано к программе</strong>
+            <span>Высокобелковый рацион · 2 400 ккал →</span>
+          </div>
+        </div>
+        <!-- Tab switcher: Week / History -->
+        <div class="mp-tabs">
+          <button class="mp-tab active" id="mptab-week" onclick="switchMpTab('week')">Текущая неделя</button>
+          <button class="mp-tab" id="mptab-history" onclick="switchMpTab('history')">История</button>
+        </div>
+        <!-- WEEK TAB -->
+        <div id="mp-content-week">
+          <div class="ses-hd">
+            <div class="ses-hd-nav">
+              <button class="week-nav-btn" id="week-prev-btn" onclick="changeWeek(-1)"><i class="ph ph-caret-left"></i></button>
+              <h3 id="ses-week-title">Неделя 1</h3>
+              <button class="week-nav-btn" id="week-next-btn" onclick="changeWeek(1)"><i class="ph ph-caret-right"></i></button>
+            </div>
+            <span id="ses-prog-lbl">0 / 0 тренировок</span>
+          </div>
+          <div id="active-week-list"></div>
+          <div style="margin-top:var(--sp6);text-align:center">
+            <button class="d-cta sec" onclick="confirmStop()" style="width:auto;padding:10px 22px;font-size:13px">Покинуть программу</button>
+          </div>
+        </div>
+        <!-- HISTORY TAB -->
+        <div id="mp-content-history" style="display:none">
+          <div id="plan-history-list"></div>
+        </div>
+      </div>
+
+      <!-- ══ DIET ══ -->
+      <div class="panel" id="panel-diet">
+
+        <!-- Header with date nav -->
+        <div class="diet-top-row">
+          <div>
+            <div class="sec-hd-title">Питание</div>
+            <div class="sec-hd-sub" id="diet-date-sub">Сегодня</div>
+          </div>
+          <div class="diet-day-nav">
+            <button class="week-nav-btn" onclick="changeDietDay(-1)"><i class="ph ph-caret-left"></i></button>
+            <span class="diet-day-lbl" id="diet-day-lbl">Сегодня</span>
+            <button class="week-nav-btn" onclick="changeDietDay(1)" id="diet-day-next"><i class="ph ph-caret-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Plan badge -->
+        <div class="plan-badge" id="diet-badge" style="display:none">
+          <i class="ph ph-target" style="font-size:18px;flex-shrink:0"></i>
+          <span class="pb-txt" id="diet-badge-text">Макросы скалиброваны под <strong>программу</strong></span>
+          <span class="pb-pill" id="diet-badge-pill">Сила</span>
+        </div>
+
+        <!-- Macro strip — 4 in a row -->
+        <div class="macro-strip">
+          <div class="ms-card">
+            <div class="ms-ico" style="background:#fef3e2">🔥</div>
+            <div class="ms-val" id="mc-kcal-val">0</div>
+            <div class="ms-lbl">ккал</div>
+            <div class="ms-bar"><div class="ms-fill" id="mc-kcal-bar" style="width:0%;background:var(--amber)"></div></div>
+            <div class="ms-target">/ <span id="kcal-target">2400</span></div>
+          </div>
+          <div class="ms-card">
+            <div class="ms-ico" style="background:var(--sage-light)">💪</div>
+            <div class="ms-val" id="mc-prot-val">0</div>
+            <div class="ms-lbl">белки г</div>
+            <div class="ms-bar"><div class="ms-fill" id="mc-prot-bar" style="width:0%;background:var(--sage)"></div></div>
+            <div class="ms-target">/ <span id="prot-target">180</span></div>
+          </div>
+          <div class="ms-card">
+            <div class="ms-ico" style="background:var(--slate-light)">🌾</div>
+            <div class="ms-val" id="mc-carb-val">0</div>
+            <div class="ms-lbl">углеводы г</div>
+            <div class="ms-bar"><div class="ms-fill" id="mc-carb-bar" style="width:0%;background:var(--slate)"></div></div>
+            <div class="ms-target">/ <span id="carb-target">270</span></div>
+          </div>
+          <div class="ms-card">
+            <div class="ms-ico" style="background:#f8f0e8">🥑</div>
+            <div class="ms-val" id="mc-fat-val">0</div>
+            <div class="ms-lbl">жиры г</div>
+            <div class="ms-bar"><div class="ms-fill" id="mc-fat-bar" style="width:0%;background:#c8860c"></div></div>
+            <div class="ms-target">/ <span id="fat-target">80</span></div>
+          </div>
+        </div>
+
+        <!-- Diet tabs: Today / Week plan / Calculator -->
+        <div class="diet-tabs">
+          <button class="diet-tab active" id="dtab-today" onclick="switchDietTab('today')">Сегодня</button>
+          <button class="diet-tab" id="dtab-week" onclick="switchDietTab('week')">Рацион на неделю</button>
+          <button class="diet-tab" id="dtab-calc" onclick="switchDietTab('calc')">Калькулятор</button>
+        </div>
+
+        <!-- TODAY TAB -->
+        <div id="diet-content-today">
+          <div class="ob-trigger-bar">
+            <span>🥗 Настрой рацион под цели — получишь план на неделю</span>
+            <button class="ob-trigger-btn sec" onclick="reopenOb('diet')">Настроить</button>
+          </div>
+          <div class="diet-meals-hd">
+            <div style="font-family:var(--display);font-size:18px;font-weight:600;color:var(--t1)">Приёмы пищи</div>
+            <button class="diet-add-btn" onclick="openMealDrawer()"><i class="ph ph-plus"></i> Добавить</button>
+          </div>
+          <div id="meals-list"></div>
+        </div>
+
+        <!-- WEEK PLAN TAB -->
+        <div id="diet-content-week" style="display:none">
+          <div class="week-plan-hd">
+            <div style="font-family:var(--display);font-size:18px;font-weight:600;color:var(--t1)">Рацион на неделю</div>
+            <button class="diet-add-btn" onclick="generateWeekPlan()"><i class="ph ph-sparkle"></i> Сгенерировать</button>
+          </div>
+          <div id="week-plan-container">
+            <div class="week-plan-empty">
+              <div class="week-plan-empty-icon">🥗</div>
+              <div class="week-plan-empty-title">Рацион ещё не создан</div>
+              <div class="week-plan-empty-sub">Пройди опрос или нажми «Сгенерировать» — и мы составим план питания на 7 дней, подобранный под твои цели и бюджет.</div>
+              <button class="week-plan-gen-btn" onclick="generateWeekPlan()"><i class="ph ph-sparkle"></i> Сгенерировать рацион</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATOR TAB -->
+        <div id="diet-content-calc" style="display:none">
+          <div class="calc-card-new">
+            <div class="calc-title">Калькулятор нормы калорий</div>
+            <div class="calc-subtitle">Формула Mifflin-St Jeor</div>
+            <div class="calc-grid">
+              <div class="calc-field"><label>Возраст</label><input type="number" id="calc-age" value="28"></div>
+              <div class="calc-field"><label>Вес (кг)</label><input type="number" id="calc-weight" value="82"></div>
+              <div class="calc-field"><label>Рост (см)</label><input type="number" id="calc-height" value="180"></div>
+              <div class="calc-field"><label>Пол</label>
+                <select id="calc-sex"><option value="m">Мужской</option><option value="f">Женский</option></select>
+              </div>
+              <div class="calc-field" style="grid-column:1/-1"><label>Активность</label>
+                <select id="calc-activity">
+                  <option value="1.2">Минимальная (сидячий образ жизни)</option>
+                  <option value="1.375">Лёгкая (1–3 тренировки в неделю)</option>
+                  <option value="1.55" selected>Умеренная (3–5 тренировок)</option>
+                  <option value="1.725">Высокая (6–7 тренировок)</option>
+                  <option value="1.9">Очень высокая (физический труд + спорт)</option>
+                </select>
+              </div>
+            </div>
+            <button class="calc-btn" onclick="calcCalories()">Рассчитать →</button>
+            <div class="calc-result" id="calc-result">
+              <div class="calc-result-grid">
+                <div class="cr-box"><span class="cr-val" id="cr-bmr">—</span><span class="cr-lbl">Базовый обмен</span></div>
+                <div class="cr-box"><span class="cr-val" id="cr-tdee">—</span><span class="cr-lbl">TDEE</span></div>
+                <div class="cr-box"><span class="cr-val" id="cr-cut">—</span><span class="cr-lbl">Дефицит −400</span></div>
+                <div class="cr-box"><span class="cr-val" id="cr-bulk">—</span><span class="cr-lbl">Профицит +400</span></div>
+              </div>
+              <button class="calc-apply-btn" onclick="applyCalcResult()">Применить как цель →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ SHOP ══ -->
+      <div class="panel" id="panel-shop">
+        <div class="sec-hd">
+          <div><div class="sec-hd-title">Добавки</div><div class="sec-hd-sub">Подобраны под твои цели</div></div>
+          <button class="f-chip active" onclick="openCart()" id="cart-open-btn" style="display:none">
+            🛒 Корзина (<span id="cart-count-btn">0</span>)
+          </button>
+        </div>
+        <div class="shop-rec" id="shop-banner" style="display:none">
+          <span class="sr-icon">⭐</span>
+          <div class="sr-text">
+            <strong>Рекомендуем для твоей программы</strong>
+            <span>На основе <em id="srb-name">твоего плана</em> — добавки для восстановления и производительности.</span>
+          </div>
+        </div>
+        <div class="shop-grid" id="shop-grid"></div>
+      </div>
+
+      <!-- ══ RATING ══ -->
+      <div class="panel" id="panel-rating">
+        <div class="sec-hd">
+          <div><div class="sec-hd-title">Рейтинг</div><div class="sec-hd-sub">Март 2026 · Общий зачёт</div></div>
+        </div>
+
+        <!-- Hero banner — вставь свою информацию прямо в HTML ниже -->
+        <div class="rating-hero">
+          <img class="rating-hero-bg" src="assets/banners/rating-hero.jpg" alt="">
+          <div class="rating-hero-overlay"></div>
+          <div class="rating-hero-content">
+            <span class="rating-hero-eyebrow">🏆 Твоя позиция в рейтинге</span>
+            <div class="rating-hero-name">Алексей <em>Морозов</em></div>
+            <div class="rating-hero-stats">
+              <div class="rating-hero-stat">
+                <span class="rating-hero-stat-val">#3</span>
+                <span class="rating-hero-stat-lbl">Место</span>
+              </div>
+              <div class="rating-hero-stat">
+                <span class="rating-hero-stat-val">4 210</span>
+                <span class="rating-hero-stat-lbl">Очков</span>
+              </div>
+              <div class="rating-hero-stat">
+                <span class="rating-hero-stat-val">12</span>
+                <span class="rating-hero-stat-lbl">Недель</span>
+              </div>
+              <div class="rating-hero-stat">
+                <span class="rating-hero-stat-val">84</span>
+                <span class="rating-hero-stat-lbl">Тренировок</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lb-section-title">Полный рейтинг</div>
+        <div class="lb-table" id="lb-table"></div>
+      </div>
+
+      <!-- ══ PROFILE ══ -->
+      <div class="panel" id="panel-profile">
+        <!-- Hero -->
+        <div class="profile-hero">
+          <img class="profile-hero-bg" src="assets/banners/profile-hero.jpg" alt="">
+          <div class="profile-hero-content">
+            <div class="ph-avatar-wrap">
+              <div class="ph-avatar" id="ph-avatar-el">?<img id="ph-avatar-img" src="" style="display:none"></div>
+              <button class="ph-edit-btn" onclick="document.getElementById('avatar-upload').click()">
+                <i class="ph ph-pencil-simple"></i>
+              </button>
+              <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="changeAvatar(this)">
+            </div>
+            <div class="ph-info">
+              <div class="ph-name" id="ph-name-display">—</div>
+              <div class="ph-sub" id="ph-sub-display">—</div>
+              <div class="ph-tags">
+                <span class="ph-tag" id="ph-tag-streak">🔥 0 дней серия</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="profile-stats">
+          <div class="pstat"><span class="pstat-v">12</span><span class="pstat-l">Недель тренинга</span></div>
+          <div class="pstat"><span class="pstat-v">84</span><span class="pstat-l">Тренировок</span></div>
+          <div class="pstat"><span class="pstat-v">4 210</span><span class="pstat-l">Очков рейтинга</span></div>
+          <div class="pstat"><span class="pstat-v" id="profile-streak-val">0 🔥</span><span class="pstat-l">Серия дней</span></div>
+        </div>
+
+        <!-- Personal data form -->
+        <div class="profile-form">
+          <div class="pf-title">Личные данные</div>
+          <div class="form-grid">
+            <div class="form-field"><label class="form-label">Имя</label><input class="form-input" id="pf-name" type="text" placeholder="Имя"></div>
+            <div class="form-field"><label class="form-label">Фамилия</label><input class="form-input" id="pf-surname" type="text" placeholder="Фамилия"></div>
+            <div class="form-field"><label class="form-label">Возраст</label><input class="form-input" id="pf-age" type="number" placeholder="28"></div>
+            <div class="form-field"><label class="form-label">Город</label><input class="form-input" id="pf-city" type="text" placeholder="Москва"></div>
+            <div class="form-field"><label class="form-label">Вес (кг)</label><input class="form-input" id="pf-weight" type="number" placeholder="82"></div>
+            <div class="form-field"><label class="form-label">Рост (см)</label><input class="form-input" id="pf-height" type="number" placeholder="180"></div>
+          </div>
+          <button class="save-btn" onclick="saveProfile()">Сохранить изменения</button>
+          <div class="save-confirm" id="save-confirm">✓ Профиль сохранён</div>
+        </div>
+      </div>
+
+    </div><!-- /scroll-area -->
+  </main>
+</div><!-- /app -->
+
+<!-- ── BOTTOM NAV (mobile) ── -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mn-item active" id="mn-plans" onclick="switchTo('plans')"><i class="ph ph-list-bullets"></i>Программы</button>
+  <button class="mn-item" id="mn-diet" onclick="switchTo('diet')"><i class="ph ph-fork-knife"></i>Питание</button>
+  <button class="mn-item" id="mn-shop" onclick="switchTo('shop')"><i class="ph ph-shopping-cart"></i>Добавки</button>
+  <button class="mn-item" id="mn-rating" onclick="switchTo('rating')"><i class="ph ph-trophy"></i>Рейтинг</button>
+  <button class="mn-item" id="mn-profile" onclick="switchTo('profile')"><i class="ph ph-user-circle"></i>Профиль</button>
+</nav>
+
+<!-- ── DETAIL OVERLAY ── -->
+<div class="detail-wrap" id="detail-wrap" onclick="maybeCloseDetail(event)">
+  <div class="detail-panel">
+    <div class="dh">
+      <img id="dh-photo" src="" alt="">
+      <div class="dh-overlay"></div>
+      <div class="d-stripe" id="d-stripe"></div>
+      <button class="d-close" onclick="closeDetail()"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="d-body">
+      <div class="d-tags" id="d-tags"></div>
+      <div class="d-title" id="d-title"></div>
+      <div class="d-desc" id="d-desc"></div>
+      <div class="d-stats" id="d-stats"></div>
+      <span class="d-sec-lbl">Фазы программы</span>
+      <div id="d-blocks"></div>
+      <span class="d-sec-lbl" id="d-schedule-lbl" style="display:none">Расписание по дням</span>
+      <div id="d-schedule"></div>
+      <div id="d-nutrition-wrap" style="display:none">
+        <span class="d-sec-lbl">Рекомендуемое питание</span>
+        <div id="d-nutrition"></div>
+      </div>
+      <div id="d-supps-wrap" style="display:none">
+        <span class="d-sec-lbl">Рекомендуемые добавки</span>
+        <div id="d-supps"></div>
+      </div>
+      <div class="d-cta-area" id="d-cta"></div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
