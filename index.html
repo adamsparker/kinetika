@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#18170f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Form Studio">
+<meta name="apple-mobile-web-app-title" content="Kinetika Pro">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/ui/icon-192.png">
-<title>Form Studio</title>
+<title>Kinetika Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -23,7 +23,7 @@
   <div class="auth-box">
     <div class="auth-hero">
       <img class="auth-hero-img" src="assets/ui/auth-hero.jpg" alt="">
-      <div class="auth-logo">Form <em>Studio</em></div>
+      <div class="auth-logo">Kinetika <em>Pro</em></div>
       <div class="auth-tagline">Твоя платформа для тренировок, питания и роста</div>
     </div>
     <div class="auth-body">
@@ -75,7 +75,7 @@
 <div class="ob-wrap" id="ob-plans">
   <div class="ob-box">
     <button class="ob-close-btn" onclick="skipOb('ob-plans')"><i class="ph ph-x"></i></button>
-    <div class="ob-wordmark">Form <em>Studio</em></div>
+    <div class="ob-wordmark">Kinetika <em>Pro</em></div>
     <div class="ob-dots">
       <div class="ob-dot done" id="p-d0"></div>
       <div class="ob-dot" id="p-d1"></div>
@@ -138,7 +138,7 @@
 <div class="ob-wrap" id="ob-diet">
   <div class="ob-box">
     <button class="ob-close-btn" onclick="skipOb('ob-diet')"><i class="ph ph-x"></i></button>
-    <div class="ob-wordmark">Form <em>Studio</em> · Питание</div>
+    <div class="ob-wordmark">Kinetika <em>Pro</em> · Питание</div>
     <div class="ob-dots">
       <div class="ob-dot done" id="d-d0"></div>
       <div class="ob-dot" id="d-d1"></div>
@@ -335,6 +335,22 @@
     </div>
   </div>
 </div>
+<!-- Weight input modal -->
+<div class="modal-wrap" id="weightModal">
+  <div class="modal-box" style="width:360px">
+    <span class="m-icon">⚖️</span>
+    <div class="m-title">Вес сегодня</div>
+    <div style="margin-bottom:var(--sp5)">
+      <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);display:block;margin-bottom:8px">Масса тела (кг)</label>
+      <input class="log-input" id="weight-input" type="number" step="0.1" placeholder="82.5" style="font-size:22px;font-weight:700;text-align:center;padding:14px">
+    </div>
+    <div class="m-btns">
+      <button class="m-btn cancel" onclick="document.getElementById('weightModal').classList.remove('open')">Отмена</button>
+      <button class="m-btn confirm" onclick="saveWeight()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
 <!-- Checkout success -->
 <div class="modal-wrap" id="checkoutModal">
   <div class="modal-box">
@@ -358,7 +374,7 @@
   <!-- ── SIDEBAR ── -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
-      <div class="sb-wordmark">Form <em>Studio</em></div>
+      <div class="sb-wordmark">Kinetika <em>Pro</em></div>
       <div class="sb-profile" onclick="switchTo('profile')">
         <div class="sb-avatar" id="sb-avatar-el">?</div>
         <div>
@@ -373,7 +389,7 @@
       </div>
       <div class="sb-rating-mini" onclick="switchTo('rating')">
         <i class="ph ph-trophy" style="color:var(--gold);font-size:15px"></i>
-        <span>Рейтинг: <b>#3</b> · 4 210 оч.</span>
+        <span>Рейтинг</span>
       </div>
     </div>
     <nav class="sb-nav">
@@ -394,6 +410,9 @@
       </button>
       <button class="sb-item" id="nav-rating" onclick="switchTo('rating')">
         <span class="sb-item-icon"><i class="ph ph-trophy"></i></span>Рейтинг
+      </button>
+      <button class="sb-item" id="nav-progress" onclick="switchTo('progress')">
+        <span class="sb-item-icon"><i class="ph ph-chart-line-up"></i></span>Прогресс
       </button>
       <button class="sb-item" id="nav-profile" onclick="switchTo('profile')">
         <span class="sb-item-icon"><i class="ph ph-user-circle"></i></span>Профиль
@@ -644,6 +663,90 @@
         <div class="shop-grid" id="shop-grid"></div>
       </div>
 
+      <!-- ══ PROGRESS ══ -->
+      <div class="panel" id="panel-progress">
+
+        <!-- Weight Chart -->
+        <div class="sec-hd">
+          <div><div class="sec-hd-title">Прогресс</div><div class="sec-hd-sub">Вес и личные рекорды</div></div>
+        </div>
+
+        <!-- Weight section -->
+        <div class="progress-card">
+          <div class="progress-card-hd">
+            <div>
+              <div class="progress-card-title">📊 График веса</div>
+              <div class="progress-card-sub" id="weight-chart-sub">Введи вес чтобы начать отслеживать</div>
+            </div>
+            <button class="diet-add-btn" onclick="openWeightModal()"><i class="ph ph-plus"></i> Добавить</button>
+          </div>
+          <!-- Canvas chart -->
+          <div class="weight-chart-wrap" id="weight-chart-wrap">
+            <canvas id="weight-chart" height="180"></canvas>
+            <div class="weight-chart-empty" id="weight-chart-empty">
+              <div style="font-size:36px;margin-bottom:12px">⚖️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--t2);margin-bottom:6px">Нет данных за 30 дней</div>
+              <div style="font-size:12.5px;color:var(--t3)">Нажми «Добавить» чтобы зафиксировать вес сегодня</div>
+            </div>
+          </div>
+          <!-- Last entries -->
+          <div class="weight-entries" id="weight-entries"></div>
+        </div>
+
+        <!-- Notifications section -->
+        <div class="progress-card" style="margin-top:var(--sp5)">
+          <div class="progress-card-hd">
+            <div>
+              <div class="progress-card-title">🔔 Напоминания о тренировке</div>
+              <div class="progress-card-sub">Push-уведомления через браузер</div>
+            </div>
+            <div class="notif-toggle-wrap">
+              <span class="notif-status-lbl" id="notif-status-lbl">Выкл</span>
+              <button class="notif-toggle-btn" id="notif-toggle-btn" onclick="toggleNotifications()">
+                <span class="notif-toggle-knob"></span>
+              </button>
+            </div>
+          </div>
+          <div id="notif-settings" style="display:none">
+            <div class="notif-time-row">
+              <label class="notif-time-label">Время напоминания</label>
+              <input type="time" class="notif-time-input" id="notif-time-input" value="08:00" onchange="saveNotifTime()">
+            </div>
+            <div class="notif-days-row">
+              <label class="notif-time-label">Дни недели</label>
+              <div class="notif-days-grid" id="notif-days-grid">
+                <button class="notif-day-btn active" data-day="1" onclick="toggleNotifDay(this)">Пн</button>
+                <button class="notif-day-btn active" data-day="2" onclick="toggleNotifDay(this)">Вт</button>
+                <button class="notif-day-btn active" data-day="3" onclick="toggleNotifDay(this)">Ср</button>
+                <button class="notif-day-btn active" data-day="4" onclick="toggleNotifDay(this)">Чт</button>
+                <button class="notif-day-btn active" data-day="5" onclick="toggleNotifDay(this)">Пт</button>
+                <button class="notif-day-btn" data-day="6" onclick="toggleNotifDay(this)">Сб</button>
+                <button class="notif-day-btn" data-day="0" onclick="toggleNotifDay(this)">Вс</button>
+              </div>
+            </div>
+            <button class="notif-test-btn" onclick="sendTestNotification()"><i class="ph ph-bell-ringing"></i> Отправить тест</button>
+          </div>
+        </div>
+
+        <!-- PR Records -->
+        <div class="progress-card" style="margin-top:var(--sp5)">
+          <div class="progress-card-hd">
+            <div>
+              <div class="progress-card-title">🏆 Личные рекорды</div>
+              <div class="progress-card-sub" id="pr-sub">Рекорды появятся после тренировок</div>
+            </div>
+          </div>
+          <div id="pr-list">
+            <div class="pr-empty">
+              <div style="font-size:32px;margin-bottom:10px">🏋️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--t2);margin-bottom:4px">Нет рекордов</div>
+              <div style="font-size:12.5px;color:var(--t3)">Начни тренироваться и вводи рабочий вес — PR будут фиксироваться автоматически</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- ══ RATING ══ -->
       <div class="panel" id="panel-rating">
         <div class="sec-hd">
@@ -655,26 +758,8 @@
           <img class="rating-hero-bg" src="assets/banners/rating-hero.jpg" alt="" loading="lazy">
           <div class="rating-hero-overlay"></div>
           <div class="rating-hero-content">
-            <span class="rating-hero-eyebrow">🏆 Твоя позиция в рейтинге</span>
-            <div class="rating-hero-name">Алексей <em>Морозов</em></div>
-            <div class="rating-hero-stats">
-              <div class="rating-hero-stat">
-                <span class="rating-hero-stat-val">#3</span>
-                <span class="rating-hero-stat-lbl">Место</span>
-              </div>
-              <div class="rating-hero-stat">
-                <span class="rating-hero-stat-val">4 210</span>
-                <span class="rating-hero-stat-lbl">Очков</span>
-              </div>
-              <div class="rating-hero-stat">
-                <span class="rating-hero-stat-val">12</span>
-                <span class="rating-hero-stat-lbl">Недель</span>
-              </div>
-              <div class="rating-hero-stat">
-                <span class="rating-hero-stat-val">84</span>
-                <span class="rating-hero-stat-lbl">Тренировок</span>
-              </div>
-            </div>
+            <span class="rating-hero-eyebrow">🏆 Рейтинг участников</span>
+            <div class="rating-hero-name">Kinetika <em>Pro</em></div>
           </div>
         </div>
 
@@ -707,9 +792,9 @@
 
         <!-- Stats -->
         <div class="profile-stats">
-          <div class="pstat"><span class="pstat-v">12</span><span class="pstat-l">Недель тренинга</span></div>
-          <div class="pstat"><span class="pstat-v">84</span><span class="pstat-l">Тренировок</span></div>
-          <div class="pstat"><span class="pstat-v">4 210</span><span class="pstat-l">Очков рейтинга</span></div>
+          <div class="pstat"><span class="pstat-v" id="profile-weeks-val">0</span><span class="pstat-l">Недель тренинга</span></div>
+          <div class="pstat"><span class="pstat-v" id="profile-sessions-val">0</span><span class="pstat-l">Тренировок</span></div>
+          <div class="pstat"><span class="pstat-v" id="profile-points-val">0</span><span class="pstat-l">Очков рейтинга</span></div>
           <div class="pstat"><span class="pstat-v" id="profile-streak-val">0 🔥</span><span class="pstat-l">Серия дней</span></div>
         </div>
 
@@ -737,8 +822,8 @@
 <nav class="mobile-nav" id="mobile-nav">
   <button class="mn-item active" id="mn-plans" onclick="switchTo('plans')"><i class="ph ph-list-bullets"></i>Программы</button>
   <button class="mn-item" id="mn-diet" onclick="switchTo('diet')"><i class="ph ph-fork-knife"></i>Питание</button>
+  <button class="mn-item" id="mn-progress" onclick="switchTo('progress')"><i class="ph ph-chart-line-up"></i>Прогресс</button>
   <button class="mn-item" id="mn-shop" onclick="switchTo('shop')"><i class="ph ph-shopping-cart"></i>Добавки</button>
-  <button class="mn-item" id="mn-rating" onclick="switchTo('rating')"><i class="ph ph-trophy"></i>Рейтинг</button>
   <button class="mn-item" id="mn-profile" onclick="switchTo('profile')"><i class="ph ph-user-circle"></i>Профиль</button>
 </nav>
 

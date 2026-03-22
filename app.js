@@ -234,16 +234,7 @@ const PRODUCTS = [
   {id:'cherry',    name:'Экстракт вишни',          brand:'Form Recovery',  price:2600, priceStr:'₽2 600', unit:'/60 кап.',desc:'Снижение боли после тренировки.'},
 ];
 
-const LEADERBOARD = [
-  {rank:1, name:'Дмитрий В.',  sub:'Ронни · 16 нед.',       pts:5440, av:'Д', avBg:'linear-gradient(135deg,#c8a050,#8a6020)', change:'—'},
-  {rank:2, name:'Марина К.',   sub:'Гоггинс · 12 нед.',     pts:4820, av:'М', avBg:'linear-gradient(135deg,#9da8b5,#6b7a8a)', change:'+1'},
-  {rank:3, name:'Алексей М.',  sub:'Мисима · 12 нед.',      pts:4210, av:'А', avBg:'linear-gradient(135deg,#c9b99a,#8a7255)', change:'-1', me:true},
-  {rank:4, name:'Ольга С.',    sub:'Похудение · 6 нед.',    pts:3980, av:'О', avBg:'linear-gradient(135deg,#8b3e1a,#5c2d0e)', change:'+2'},
-  {rank:5, name:'Павел Т.',    sub:'Махачев · 8 нед.',      pts:3640, av:'П', avBg:'linear-gradient(135deg,#5a3a6e,#2d1a38)', change:'—'},
-  {rank:6, name:'Юлия Н.',    sub:'Ментцер · 4 нед.',      pts:3210, av:'Ю', avBg:'linear-gradient(135deg,#3a526e,#1e2b38)', change:'+3'},
-  {rank:7, name:'Иван Р.',     sub:'Tren Twins · 8 нед.',   pts:2980, av:'И', avBg:'linear-gradient(135deg,#2d4a3e,#1a2e26)', change:'-2'},
-  {rank:8, name:'Анна К.',    sub:'Набор массы · 3 нед.',  pts:2670, av:'А', avBg:'linear-gradient(135deg,#4a2210,#2a1506)', change:'+1'},
-];
+const LEADERBOARD = [];
 
 /* FOOD_DB defined later in the DIET section */
 
@@ -745,6 +736,17 @@ function switchMpTab(tab) {
 }
 
 /* Active week tracker */
+function flushExerciseInputs() {
+  // Save all current input values to exerciseLogs before any re-render
+  document.querySelectorAll('.ex-log-input[data-key]').forEach(inp => {
+    const key = inp.dataset.key;
+    const field = inp.dataset.field;
+    if (!key || !field) return;
+    if (!exerciseLogs[key]) exerciseLogs[key] = { weight: '', reps: '' };
+    exerciseLogs[key][field] = inp.value;
+  });
+}
+
 function renderActiveWeek() {
   if (!activePlan) return;
   const schedule = activePlan.schedule || [];
@@ -803,9 +805,11 @@ function renderActiveWeek() {
               <div class="aw-ex-detail">${ex.detail}</div>
               <div class="aw-ex-log">
                 <input class="ex-log-input" type="number" placeholder="${weightPlaceholder}" value="${savedLog.weight}"
+                  data-key="${wKey}" data-field="weight"
                   onchange="logExercise('${wKey}','weight',this.value)" onclick="event.stopPropagation()">
                 <span class="ex-log-sep">×</span>
                 <input class="ex-log-input" type="number" placeholder="повт" value="${savedLog.reps}"
+                  data-key="${wKey}" data-field="reps"
                   onchange="logExercise('${wKey}','reps',this.value)" onclick="event.stopPropagation()">
                 ${weightHint}
               </div>
@@ -909,9 +913,10 @@ function toggleHistoryWeek(w) {
   document.getElementById('hw-' + w)?.classList.toggle('open');
 }
 
-function toggleAwDay(di) { openDayIdx = openDayIdx === di ? null : di; renderActiveWeek(); }
+function toggleAwDay(di) { flushExerciseInputs(); openDayIdx = openDayIdx === di ? null : di; renderActiveWeek(); }
 
 function toggleExercise(di, ei) {
+  flushExerciseInputs();
   if (!completedExercises[di]) completedExercises[di] = new Set();
   const set = completedExercises[di];
   if (set.has(ei)) { set.delete(ei); vibrate(10); }
@@ -920,6 +925,7 @@ function toggleExercise(di, ei) {
 }
 
 function finishDay(di) {
+  flushExerciseInputs();
   const day = activePlan.schedule[di];
   if (!day || day.type === 'rest') return;
   if (!completedExercises[di]) completedExercises[di] = new Set();
@@ -1581,7 +1587,16 @@ function gotoShop() { closeDetail(); switchTo('shop'); }
    RATING
 ══════════════════════════════════════ */
 function renderLeaderboard() {
-  document.getElementById('lb-table').innerHTML = LEADERBOARD.map(u => `
+  const el = document.getElementById('lb-table');
+  if (!LEADERBOARD.length) {
+    el.innerHTML = `<div style="text-align:center;padding:var(--sp7) 0;color:var(--t3)">
+      <div style="font-size:36px;margin-bottom:var(--sp3)">🏆</div>
+      <div style="font-size:14px;font-weight:600;color:var(--t2);margin-bottom:var(--sp2)">Рейтинг скоро появится</div>
+      <div style="font-size:13px">Начни тренироваться — попади в таблицу лидеров</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = LEADERBOARD.map(u => `
     <div class="lb-row${u.me ? ' me' : ''}">
       <div class="lb-rank${u.rank <= 3 ? ' top' : ''}">${u.rank}</div>
       <div class="lb-user-av" style="background:${u.avBg}">${u.av}</div>
@@ -1650,12 +1665,13 @@ function changeAvatar(input) {
    NAVIGATION
 ══════════════════════════════════════ */
 const TB_TITLES = {
-  plans:   'Программы',
-  myplan:  'Моя программа',
-  diet:    'Питание',
-  shop:    'Добавки',
-  rating:  'Рейтинг',
-  profile: 'Профиль',
+  plans:    'Программы',
+  myplan:   'Моя программа',
+  diet:     'Питание',
+  shop:     'Добавки',
+  rating:   'Рейтинг',
+  progress: 'Прогресс',
+  profile:  'Профиль',
 };
 
 function switchTo(name) {
@@ -1672,6 +1688,7 @@ function switchTo(name) {
   closeSidebar();
   maybeShowOb(name);
   if (name === 'myplan' && activePlan) renderMyPlan();
+  if (name === 'progress') { renderWeightChart(); renderPRList(); }
   updateFAB(name);
 }
 
@@ -1904,6 +1921,345 @@ function initSwipeToClose(panelId, closeFn) {
   }, { passive: true });
 }
 
+function updateFAB(section) {
+  const fab = document.getElementById('fab-btn');
+  if (!fab) return;
+  fab.style.display = section === 'diet' ? 'flex' : 'none';
+}
+
+/* ══════════════════════════════════════
+   WEIGHT TRACKER
+══════════════════════════════════════ */
+let weightLog = []; // [{date:'2025-03-01', kg:82.5}, ...]
+
+function openWeightModal() {
+  const inp = document.getElementById('weight-input');
+  if (userProfile.weight) inp.value = userProfile.weight;
+  document.getElementById('weightModal').classList.add('open');
+  setTimeout(() => inp.focus(), 100);
+}
+
+function saveWeight() {
+  const val = parseFloat(document.getElementById('weight-input').value);
+  if (!val || val < 20 || val > 300) return;
+  const today = new Date().toISOString().split('T')[0];
+  // remove existing entry for today if present
+  weightLog = weightLog.filter(e => e.date !== today);
+  weightLog.push({ date: today, kg: val });
+  weightLog.sort((a, b) => a.date.localeCompare(b.date));
+  document.getElementById('weightModal').classList.remove('open');
+  renderWeightChart();
+  renderWeightEntries();
+}
+
+function deleteWeightEntry(date) {
+  weightLog = weightLog.filter(e => e.date !== date);
+  renderWeightChart();
+  renderWeightEntries();
+}
+
+function renderWeightChart() {
+  const canvas = document.getElementById('weight-chart');
+  const emptyEl = document.getElementById('weight-chart-empty');
+  const subEl = document.getElementById('weight-chart-sub');
+  const wrap = document.getElementById('weight-chart-wrap');
+
+  // last 30 days
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+  const data = weightLog.filter(e => new Date(e.date) >= cutoff);
+
+  renderWeightEntries();
+
+  if (data.length < 2) {
+    canvas.style.display = 'none';
+    emptyEl.style.display = 'flex';
+    if (data.length === 1) {
+      subEl.textContent = `Последний вес: ${data[0].kg} кг — нужно минимум 2 точки для графика`;
+    } else {
+      subEl.textContent = 'Введи вес чтобы начать отслеживать';
+    }
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  canvas.style.display = 'block';
+
+  const W = wrap.clientWidth || 600;
+  const H = 200;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { top: 20, right: 20, bottom: 36, left: 48 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  const kgs = data.map(e => e.kg);
+  const minKg = Math.min(...kgs) - 1;
+  const maxKg = Math.max(...kgs) + 1;
+
+  const dates = data.map(e => new Date(e.date));
+  const minDate = dates[0].getTime();
+  const maxDate = dates[dates.length - 1].getTime();
+  const dateRange = maxDate - minDate || 1;
+
+  const toX = (d) => pad.left + ((new Date(d).getTime() - minDate) / dateRange) * chartW;
+  const toY = (kg) => pad.top + ((maxKg - kg) / (maxKg - minKg)) * chartH;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,0,0,.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (chartH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y); ctx.stroke();
+    const label = (maxKg - ((maxKg - minKg) / 4) * i).toFixed(1);
+    ctx.fillStyle = '#9a958f'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(label, pad.left - 6, y + 4);
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+  grad.addColorStop(0, 'rgba(74,114,86,.25)');
+  grad.addColorStop(1, 'rgba(74,114,86,.02)');
+  ctx.beginPath();
+  ctx.moveTo(toX(data[0].date), toY(data[0].kg));
+  data.forEach(e => ctx.lineTo(toX(e.date), toY(e.kg)));
+  ctx.lineTo(toX(data[data.length - 1].date), pad.top + chartH);
+  ctx.lineTo(toX(data[0].date), pad.top + chartH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#4a7256';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.moveTo(toX(data[0].date), toY(data[0].kg));
+  data.forEach(e => ctx.lineTo(toX(e.date), toY(e.kg)));
+  ctx.stroke();
+
+  // Dots
+  data.forEach(e => {
+    ctx.beginPath();
+    ctx.arc(toX(e.date), toY(e.kg), 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#4a7256'; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  });
+
+  // Date labels (first and last)
+  ctx.fillStyle = '#9a958f'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  const fmtDate = d => { const dt = new Date(d); return `${dt.getDate()}.${String(dt.getMonth()+1).padStart(2,'0')}`; };
+  ctx.fillText(fmtDate(data[0].date), toX(data[0].date), H - 8);
+  if (data.length > 1) ctx.fillText(fmtDate(data[data.length-1].date), toX(data[data.length-1].date), H - 8);
+
+  // Update sub
+  const first = data[0].kg, last = data[data.length-1].kg;
+  const diff = (last - first).toFixed(1);
+  const sign = diff > 0 ? '+' : '';
+  subEl.textContent = `${data.length} замеров · ${first} → ${last} кг (${sign}${diff} кг за 30 дней)`;
+}
+
+function renderWeightEntries() {
+  const el = document.getElementById('weight-entries');
+  if (!weightLog.length) { el.innerHTML = ''; return; }
+  const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const recent = [...weightLog].reverse().slice(0, 7);
+  el.innerHTML = recent.map((e, i) => {
+    const prev = recent[i + 1];
+    let deltaHtml = '';
+    if (prev) {
+      const d = (e.kg - prev.kg).toFixed(1);
+      const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'same';
+      deltaHtml = `<span class="weight-entry-delta ${cls}">${d > 0 ? '+' : ''}${d} кг</span>`;
+    }
+    const dt = new Date(e.date);
+    const label = `${dt.getDate()} ${months[dt.getMonth()]}`;
+    return `<div class="weight-entry-row">
+      <span class="weight-entry-date">${label}</span>
+      <span class="weight-entry-val">${e.kg} кг</span>
+      ${deltaHtml}
+      <button class="weight-del-btn" onclick="deleteWeightEntry('${e.date}')"><i class="ph ph-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════
+   PERSONAL RECORDS (PR)
+   Auto-detected from exerciseLogs
+══════════════════════════════════════ */
+function computePRs() {
+  // exerciseLogs: { 'w0_d1_e2': { weight: '80', reps: '8' } }
+  const bests = {}; // { exName: { kg, date, key } }
+  Object.entries(exerciseLogs).forEach(([key, log]) => {
+    if (!log.weight || parseFloat(log.weight) <= 0) return;
+    const kg = parseFloat(log.weight);
+    // Resolve exercise name from key: w{week}_d{day}_e{exIdx}
+    const match = key.match(/^w(\d+)_d(\d+)_e(\d+)$/);
+    if (!match || !activePlan) return;
+    const di = parseInt(match[2]), ei = parseInt(match[3]);
+    const day = activePlan.schedule?.[di];
+    if (!day || !day.exercises) return;
+    const ex = day.exercises[ei];
+    if (!ex) return;
+    if (!bests[ex.n] || kg > bests[ex.n].kg) {
+      bests[ex.n] = { kg, key, reps: log.reps };
+    }
+  });
+  return bests;
+}
+
+function renderPRList() {
+  const el = document.getElementById('pr-list');
+  const sub = document.getElementById('pr-sub');
+  const bests = computePRs();
+  const entries = Object.entries(bests);
+
+  if (!entries.length) {
+    el.innerHTML = `<div class="pr-empty">
+      <div style="font-size:32px;margin-bottom:10px">🏋️</div>
+      <div style="font-size:14px;font-weight:600;color:var(--t2);margin-bottom:4px">Нет рекордов</div>
+      <div style="font-size:12.5px;color:var(--t3)">Начни тренироваться и вводи рабочий вес — PR будут фиксироваться автоматически</div>
+    </div>`;
+    sub.textContent = 'Рекорды появятся после тренировок';
+    return;
+  }
+
+  sub.textContent = `${entries.length} ${entries.length === 1 ? 'упражнение' : entries.length < 5 ? 'упражнения' : 'упражнений'}`;
+
+  // sort by weight desc
+  entries.sort((a, b) => b[1].kg - a[1].kg);
+
+  el.innerHTML = entries.map(([name, data]) => {
+    const repsStr = data.reps ? ` × ${data.reps} повт.` : '';
+    return `<div class="pr-item">
+      <div class="pr-icon">${exEmoji(name)}</div>
+      <div class="pr-info">
+        <div class="pr-name">${name}</div>
+        <div class="pr-meta">Лучший результат${repsStr}</div>
+      </div>
+      <div class="pr-val">${data.kg}<small>кг</small></div>
+    </div>`;
+  }).join('');
+}
+
+/* Hook into logExercise to auto-update PRs */
+const _origLogExercise = logExercise;
+function logExercise(key, field, value) {
+  _origLogExercise(key, field, value);
+  // refresh PR panel if open
+  const panel = document.getElementById('panel-progress');
+  if (panel && panel.classList.contains('active')) {
+    setTimeout(renderPRList, 100);
+  }
+}
+
+/* ══════════════════════════════════════
+   PUSH NOTIFICATIONS
+══════════════════════════════════════ */
+let notifEnabled = false;
+let notifTime = '08:00';
+let notifDays = new Set([1,2,3,4,5]); // Mon-Fri
+let notifInterval = null;
+
+function toggleNotifications() {
+  if (!('Notification' in window)) {
+    alert('Уведомления не поддерживаются в этом браузере');
+    return;
+  }
+  if (notifEnabled) {
+    disableNotifications();
+  } else {
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        enableNotifications();
+      } else {
+        alert('Разрешите уведомления в настройках браузера чтобы использовать эту функцию.');
+      }
+    });
+  }
+}
+
+function enableNotifications() {
+  notifEnabled = true;
+  const btn = document.getElementById('notif-toggle-btn');
+  const lbl = document.getElementById('notif-status-lbl');
+  const settings = document.getElementById('notif-settings');
+  btn.classList.add('on');
+  lbl.textContent = 'Вкл';
+  settings.style.display = 'block';
+  scheduleNotifications();
+}
+
+function disableNotifications() {
+  notifEnabled = false;
+  const btn = document.getElementById('notif-toggle-btn');
+  const lbl = document.getElementById('notif-status-lbl');
+  const settings = document.getElementById('notif-settings');
+  btn.classList.remove('on');
+  lbl.textContent = 'Выкл';
+  settings.style.display = 'none';
+  if (notifInterval) { clearInterval(notifInterval); notifInterval = null; }
+}
+
+function saveNotifTime() {
+  notifTime = document.getElementById('notif-time-input').value;
+  if (notifEnabled) scheduleNotifications();
+}
+
+function toggleNotifDay(btn) {
+  const day = parseInt(btn.dataset.day);
+  if (notifDays.has(day)) {
+    notifDays.delete(day);
+    btn.classList.remove('active');
+  } else {
+    notifDays.add(day);
+    btn.classList.add('active');
+  }
+  if (notifEnabled) scheduleNotifications();
+}
+
+function scheduleNotifications() {
+  if (notifInterval) clearInterval(notifInterval);
+  // Check every minute if it's time to notify
+  notifInterval = setInterval(() => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const currentDay = now.getDay();
+    if (currentTime === notifTime && notifDays.has(currentDay)) {
+      fireNotification();
+    }
+  }, 60000);
+}
+
+function fireNotification() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const planName = activePlan ? activePlan.title : 'тренировку';
+  const messages = [
+    `Время на ${planName}! 💪`,
+    `Не пропусти тренировку сегодня — ты уже почти там!`,
+    `Stay Hard. Время работать 🔥`,
+    `Твои мышцы не растут сами по себе 😤`,
+  ];
+  const msg = messages[Math.floor(Math.random() * messages.length)];
+  new Notification('Kinetika Pro', {
+    body: msg,
+    icon: 'assets/ui/icon-192.png',
+    badge: 'assets/ui/icon-192.png',
+  });
+}
+
+function sendTestNotification() {
+  if (!('Notification' in window)) { alert('Браузер не поддерживает уведомления'); return; }
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission().then(p => { if (p === 'granted') fireNotification(); });
+  } else {
+    fireNotification();
+  }
+}
+
 /* ══════════════════════════════════════
    PWA — SERVICE WORKER REGISTRATION
 ══════════════════════════════════════ */
@@ -1933,12 +2289,6 @@ renderLeaderboard();
 updateDietDayLabel();
 document.getElementById('diet-day-next').disabled = true;
 
-// Seed demo meals for today
-const _todayKey = todayKey(0);
-[
-  {name:'Греческий йогурт с овсянкой', time:'Завтрак',  g:300, kcal:440, p:32, c:58, f:8},
-  {name:'Куриное филе с киноа',        time:'Обед',     g:400, kcal:620, p:52, c:70, f:14},
-].forEach(m => meals.push(m));
-mealsByDay[_todayKey] = [...meals];
+// Init empty meals list
 renderMeals();
 recalcMacros();

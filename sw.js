@@ -3,7 +3,7 @@
    Service Worker for PWA + offline support
 ══════════════════════════════════════ */
 
-const CACHE_NAME = 'form-studio-v1';
+const CACHE_NAME = 'kinetika-pro-v1';
 
 // Core files to cache on install — app works offline with these
 const PRECACHE = [
