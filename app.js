@@ -248,17 +248,24 @@ const LEADERBOARD = [
 /* FOOD_DB defined later in the DIET section */
 
 /* ── APP STATE ── */
-let currentUser = null;  // { name, email, isGuest }
+let currentUser = null;
 let activePlan = null;
 let pendingPlan = null;
 let cartItems = {};
 let meals = [];
 let streakDays = 0;
 let calcTdee = 0;
-let completedExercises = {};  // { weekIdx: { dayIdx: Set of exIdx } }
+let completedExercises = {};
+let exerciseLogs = {};       // { 'w0_d1_e2': { weight: '80', reps: '8' } }
 let openDayIdx = null;
-let currentWeek = 0;   // 0-based week index
-let weekHistory = {};  // { weekIdx: { dayIdx: Set of exIdx } } — archived completed weeks
+let currentWeek = 0;
+let weekHistory = {};
+let currentGrams = 100;
+let wakeLock = null;
+let restTimerInterval = null;
+let restTimerRemaining = 0;
+let restTimerTotal = 0;
+let userProfile = { weight: 0, height: 0, age: 0 }; // filled from profile form
 const MEAL_TARGETS = {kcal: 2400, p: 180, c: 270, f: 80};
 
 // Onboarding state
@@ -481,7 +488,7 @@ function renderProgs(filter = 'Все') {
     return `<div class="prog-card${isAct ? ' is-active' : ''}" onclick="openDetail('${p.id}')">
       ${isAct ? '<div class="active-ribbon">Активна</div>' : (isRec ? '<div class="active-ribbon" style="background:var(--amber)">Рекомендуем</div>' : '')}
       <div class="card-thumb">
-        <img src="${photo}" alt="${p.title}" onerror="this.style.background='#2a2520'">
+        <img src="${photo}" alt="${p.title}" loading="lazy" onerror="this.style.background='#2a2520'">
         <div class="card-thumb-overlay"></div>
         <div class="thumb-stripe ${p.stripe}"></div>
         <div class="level-badge"><span class="lvl-dot" style="background:${p.lc}"></span>${p.level}</div>
@@ -781,11 +788,34 @@ function renderActiveWeek() {
       <div class="aw-exercises">
         ${(day.exercises || []).map((ex, ei) => {
           const done = exSet.has(ei);
+          const wKey = `w${currentWeek}_d${di}_e${ei}`;
+          const savedLog = exerciseLogs[wKey] || {weight:'', reps:''};
+          const suggested = suggestWeight(ex.n);
+          const weightPlaceholder = suggested ? `~${suggested}` : 'кг';
+          const weightHint = suggested && !savedLog.weight
+            ? `<span class="ex-weight-hint">Рекомендуем: ${suggested} кг</span>`
+            : '';
           return `<div class="aw-ex-row${done ? ' ex-done' : ''}">
             <button class="aw-ex-check-btn" onclick="toggleExercise(${di},${ei})">${done ? '✓' : ''}</button>
             <div class="aw-ex-icon">${exEmoji(ex.n)}</div>
-            <div class="aw-ex-info"><div class="aw-ex-name">${ex.n}</div><div class="aw-ex-detail">${ex.detail}</div></div>
-            <div class="aw-ex-sets">${ex.sets}</div>
+            <div class="aw-ex-info">
+              <div class="aw-ex-name">${ex.n}</div>
+              <div class="aw-ex-detail">${ex.detail}</div>
+              <div class="aw-ex-log">
+                <input class="ex-log-input" type="number" placeholder="${weightPlaceholder}" value="${savedLog.weight}"
+                  onchange="logExercise('${wKey}','weight',this.value)" onclick="event.stopPropagation()">
+                <span class="ex-log-sep">×</span>
+                <input class="ex-log-input" type="number" placeholder="повт" value="${savedLog.reps}"
+                  onchange="logExercise('${wKey}','reps',this.value)" onclick="event.stopPropagation()">
+                ${weightHint}
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+              <div class="aw-ex-sets">${ex.sets}</div>
+              <button class="aw-rest-btn" onclick="event.stopPropagation();startRestTimer('${ex.n}',90)">
+                <i class="ph ph-timer"></i> Отдых
+              </button>
+            </div>
           </div>`;
         }).join('')}
         <button class="aw-finish-btn" onclick="finishDay(${di})" ${isDayComplete || exDone < exCount ? 'disabled' : ''}>
@@ -884,7 +914,8 @@ function toggleAwDay(di) { openDayIdx = openDayIdx === di ? null : di; renderAct
 function toggleExercise(di, ei) {
   if (!completedExercises[di]) completedExercises[di] = new Set();
   const set = completedExercises[di];
-  if (set.has(ei)) set.delete(ei); else set.add(ei);
+  if (set.has(ei)) { set.delete(ei); vibrate(10); }
+  else { set.add(ei); vibrate([30, 20, 60]); }
   renderMyPlan();
 }
 
@@ -1186,11 +1217,14 @@ function openMealDrawer() {
   document.querySelectorAll('.meal-cat-btn').forEach((c,i) => c.classList.toggle('active', i===0));
   document.getElementById('meal-search-input').value = '';
   document.getElementById('meal-search-clear').style.display = 'none';
-  document.getElementById('meal-gram-input').value = 100;
+  currentGrams = 100;
+  document.getElementById('gram-display').textContent = 100;
   currentMealTime = 'Завтрак';
   renderFoodGrid('');
 }
 function closeMealDrawer() {
+  const panel = document.querySelector('.meal-drawer-panel');
+  if (panel) { panel.style.transform = ''; panel.style.transition = ''; }
   document.getElementById('mealDrawer').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -1202,6 +1236,7 @@ function selectMealTime(btn, time) {
   btn.classList.add('active');
   currentMealTime = time;
   document.getElementById('meal-drawer-sub').textContent = `Добавляем в: ${time}`;
+  vibrate(8);
 }
 function filterFoodCat(btn, cat) {
   document.querySelectorAll('.meal-cat-btn').forEach(c => c.classList.remove('active'));
@@ -1218,7 +1253,7 @@ function updateFoodGridCalcs() { renderFoodGrid(document.getElementById('meal-se
 function renderFoodGrid(query) {
   const clearBtn = document.getElementById('meal-search-clear');
   if (clearBtn) clearBtn.style.display = query ? 'flex' : 'none';
-  const g = parseInt(document.getElementById('meal-gram-input').value) || 100;
+  const g = currentGrams || 100;
   let list = FOOD_DB;
   if (currentFoodCat !== 'all') list = list.filter(f => f.cat === currentFoodCat);
   if (query.trim()) list = list.filter(f => f.name.toLowerCase().includes(query.toLowerCase()));
@@ -1237,18 +1272,19 @@ function renderFoodGrid(query) {
         <div class="food-item-name">${f.name}</div>
         <div class="food-item-mac">Б${Math.round(f.p*mult)} · У${Math.round(f.c*mult)} · Ж${Math.round(f.f*mult)}</div>
       </div>
-      <div class="food-item-kcal">${Math.round(f.kcal*mult)}</div>
+      <div class="food-item-kcal">${Math.round(f.kcal*mult)}<small>ккал</small></div>
       <button class="food-item-add" onclick="event.stopPropagation();quickAddFood('${f.id}')"><i class="ph ph-plus"></i></button>
     </div>`;
   }).join('');
 }
 function quickAddFood(id) {
   const f = FOOD_DB.find(x => x.id === id); if (!f) return;
-  const g = parseInt(document.getElementById('meal-gram-input').value) || 100;
+  const g = currentGrams || 100;
   const mult = g / 100;
   meals.push({ name:f.name, time:currentMealTime, g, kcal:f.kcal*mult, p:f.p*mult, c:f.c*mult, f:f.f*mult });
   mealsByDay[todayKey(currentDietDay)] = [...meals];
   renderMeals(); recalcMacros();
+  vibrate([20, 30, 50]);
   const el = document.getElementById('fi-' + id);
   if (el) { el.classList.add('just-added'); setTimeout(() => el.classList.remove('just-added'), 800); }
 }
@@ -1566,16 +1602,21 @@ function saveProfile() {
   const surname = document.getElementById('pf-surname').value.trim();
   const age     = document.getElementById('pf-age').value;
   const city    = document.getElementById('pf-city').value.trim();
+  const weight  = parseFloat(document.getElementById('pf-weight').value) || 0;
+  const height  = parseFloat(document.getElementById('pf-height').value) || 0;
   const full = name + (surname ? ' ' + surname : '');
+
+  // Store in global for weight suggestions
+  userProfile = { weight, height, age: parseInt(age) || 0 };
 
   document.getElementById('ph-name-display').textContent = full;
   document.getElementById('ph-sub-display').textContent = (city || '') + (age ? ' · ' + age + ' лет' : '');
   document.getElementById('sb-uname').textContent = full;
   document.getElementById('sb-usub').textContent = currentUser?.isGuest ? 'Гость' : 'Про';
 
-  if (age)  document.getElementById('calc-age').value    = age;
-  if (document.getElementById('pf-weight').value) document.getElementById('calc-weight').value = document.getElementById('pf-weight').value;
-  if (document.getElementById('pf-height').value) document.getElementById('calc-height').value = document.getElementById('pf-height').value;
+  if (age)    document.getElementById('calc-age').value    = age;
+  if (weight) document.getElementById('calc-weight').value = weight;
+  if (height) document.getElementById('calc-height').value = height;
 
   const init = (name[0] || '') + (surname[0] || '');
   const img = document.getElementById('ph-avatar-img');
@@ -1586,6 +1627,9 @@ function saveProfile() {
   const sc = document.getElementById('save-confirm');
   sc.classList.add('show');
   setTimeout(() => sc.classList.remove('show'), 2500);
+
+  // Refresh exercise suggestions with new body data
+  if (activePlan) renderActiveWeek();
 }
 
 function changeAvatar(input) {
@@ -1628,6 +1672,245 @@ function switchTo(name) {
   closeSidebar();
   maybeShowOb(name);
   if (name === 'myplan' && activePlan) renderMyPlan();
+  updateFAB(name);
+}
+
+/* ══════════════════════════════════════
+   SUGGESTED WEIGHT CALCULATOR
+   Based on user bodyweight, using standard
+   strength ratios for common exercises.
+   Returns suggested kg or null if no profile.
+══════════════════════════════════════ */
+function suggestWeight(exName) {
+  const bw = userProfile.weight;
+  if (!bw || bw < 20) return null;
+
+  // Ratios relative to bodyweight for a beginner/intermediate
+  // Format: [ratio_for_1RM_estimate, typical_working_set_pct]
+  // Working weight = bw * ratio * working_pct, rounded to nearest 2.5
+  const RATIOS = {
+    // Compound lower
+    'Приседания со штангой':      [0.85, 0.75],
+    'Фронтальный присед':         [0.70, 0.75],
+    'Становая тяга':              [1.05, 0.75],
+    'Румынская тяга':             [0.75, 0.75],
+    'Жим ногами':                 [1.50, 0.70],
+    'Выпады с гантелями':         [0.25, 0.80], // per hand
+    'Хип-траст со штангой':       [0.90, 0.75],
+    // Compound upper — push
+    'Жим лёжа':                   [0.65, 0.75],
+    'Жим гантелей на наклонной':  [0.25, 0.75], // per hand
+    'Жим гантелей лёжа':          [0.25, 0.75],
+    'Жим в тренажёре':            [0.60, 0.75],
+    'Строгий жим стоя':           [0.45, 0.75],
+    'Жим стоя':                   [0.45, 0.75],
+    'Жим Арнольда':               [0.20, 0.75],
+    'Жим лёжа узким хватом':      [0.55, 0.75],
+    // Compound upper — pull
+    'Тяга в наклоне':             [0.70, 0.75],
+    'Тяга Пендлея':               [0.70, 0.75],
+    'Тяга гантели одной рукой':   [0.30, 0.80],
+    'Тяга верхнего блока':        [0.60, 0.75],
+    'Тяга нижнего блока':         [0.55, 0.75],
+    // Isolation
+    'Подъём на бицепс':           [0.25, 0.75],
+    'Сгибания на бицепс с гантелями': [0.15, 0.80],
+    'Французский жим':            [0.28, 0.75],
+    'Разгибания на трицепс у блока': [0.22, 0.75],
+    'Подъём гантелей в стороны':  [0.08, 0.80],
+    'Разведения с гантелями':     [0.12, 0.80],
+    'Кроссоверы':                 [0.12, 0.75],
+    'Шраги со штангой':           [0.65, 0.75],
+    'Гиперэкстензия':             [0.20, 0.75],
+    'Разгибания ног':             [0.35, 0.75],
+    'Сгибания ног':               [0.28, 0.75],
+    'Икры в тренажёре':           [0.60, 0.75],
+    'Подъём на носки стоя':       [0.50, 0.75],
+  };
+
+  const entry = RATIOS[exName];
+  if (!entry) return null;
+
+  const [ratio, pct] = entry;
+  const raw = bw * ratio * pct;
+  // Round to nearest 2.5 kg
+  return Math.max(2.5, Math.round(raw / 2.5) * 2.5);
+}
+
+/* ══════════════════════════════════════
+   EXERCISE LOG (weight per set)
+══════════════════════════════════════ */
+function logExercise(key, field, value) {
+  if (!exerciseLogs[key]) exerciseLogs[key] = { weight: '', reps: '' };
+  exerciseLogs[key][field] = value;
+  vibrate(5);
+}
+
+/* ══════════════════════════════════════
+   REST TIMER
+══════════════════════════════════════ */
+const RT_CIRCUMFERENCE = 2 * Math.PI * 52; // r=52
+
+function startRestTimer(exName, seconds) {
+  if (restTimerInterval) clearInterval(restTimerInterval);
+  restTimerRemaining = seconds;
+  restTimerTotal = seconds;
+
+  const overlay = document.getElementById('rest-timer-overlay');
+  const timeEl  = document.getElementById('rt-time-display');
+  const nameEl  = document.getElementById('rt-ex-name');
+  const circle  = document.getElementById('rt-progress-circle');
+
+  nameEl.textContent = exName || 'Следующее упражнение';
+  overlay.classList.add('open');
+  vibrate([30, 50, 30]);
+
+  // Request wake lock when timer starts
+  requestWakeLock();
+
+  function tick() {
+    timeEl.textContent = restTimerRemaining;
+    const pct = restTimerRemaining / restTimerTotal;
+    const offset = RT_CIRCUMFERENCE * (1 - pct);
+    circle.style.strokeDashoffset = offset;
+
+    if (restTimerRemaining <= 0) {
+      clearInterval(restTimerInterval);
+      vibrate([100, 80, 100, 80, 200]);
+      overlay.classList.remove('open');
+      releaseWakeLock();
+      return;
+    }
+    restTimerRemaining--;
+  }
+
+  // Init circle
+  circle.style.strokeDasharray = RT_CIRCUMFERENCE;
+  circle.style.strokeDashoffset = 0;
+  tick();
+  restTimerInterval = setInterval(tick, 1000);
+}
+
+function skipRestTimer() {
+  if (restTimerInterval) clearInterval(restTimerInterval);
+  document.getElementById('rest-timer-overlay').classList.remove('open');
+  releaseWakeLock();
+  vibrate(20);
+}
+
+function stopRestTimer() {
+  skipRestTimer();
+}
+
+function addRestTime(secs) {
+  restTimerRemaining = Math.min(restTimerRemaining + secs, 600);
+  restTimerTotal = Math.max(restTimerTotal, restTimerRemaining);
+  vibrate(15);
+}
+
+/* ══════════════════════════════════════
+   SCREEN WAKE LOCK
+══════════════════════════════════════ */
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    document.getElementById('wakelock-badge').style.display = 'flex';
+    wakeLock.addEventListener('release', () => {
+      document.getElementById('wakelock-badge').style.display = 'none';
+    });
+  } catch (e) { /* not supported or denied */ }
+}
+
+async function releaseWakeLock() {
+  if (wakeLock) {
+    await wakeLock.release();
+    wakeLock = null;
+  }
+  document.getElementById('wakelock-badge').style.display = 'none';
+}
+
+// Re-request lock when page becomes visible again
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && restTimerInterval && !wakeLock) {
+    requestWakeLock();
+  }
+});
+
+/* ══════════════════════════════════════
+   VIBRATION
+══════════════════════════════════════ */
+function vibrate(pattern) {
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate(pattern); } catch(e) {}
+  }
+}
+
+/* ══════════════════════════════════════
+   GRAM STEPPER
+══════════════════════════════════════ */
+function stepGrams(delta) {
+  currentGrams = Math.max(10, Math.min(2000, currentGrams + delta));
+  document.getElementById('gram-display').textContent = currentGrams;
+  renderFoodGrid(document.getElementById('meal-search-input').value);
+  vibrate(8);
+}
+
+// Init swipe-to-close on all bottom sheets (after DOM ready)
+setTimeout(() => {
+  initSwipeToClose('meal-drawer-panel', closeMealDrawer);
+  initSwipeToClose('cart-panel',        closeCart);
+  initSwipeToClose('detail-panel',      closeDetail);
+}, 100);
+
+/* ══════════════════════════════════════
+   SWIPE TO CLOSE (bottom sheets)
+══════════════════════════════════════ */
+function initSwipeToClose(panelId, closeFn) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+
+  let startY = 0;
+  let isDragging = false;
+
+  panel.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    isDragging = true;
+  }, { passive: true });
+
+  panel.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 0) {
+      panel.style.transform = `translateY(${dy}px)`;
+      panel.style.transition = 'none';
+    }
+  }, { passive: true });
+
+  panel.addEventListener('touchend', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    panel.style.transition = 'transform .3s cubic-bezier(.25,.46,.45,.94)';
+    if (dy > 120) {
+      panel.style.transform = `translateY(100%)`;
+      setTimeout(() => {
+        panel.style.transform = '';
+        closeFn();
+      }, 280);
+    } else {
+      panel.style.transform = '';
+    }
+  }, { passive: true });
+}
+
+/* ══════════════════════════════════════
+   PWA — SERVICE WORKER REGISTRATION
+══════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
 }
 
 /* ══════════════════════════════════════

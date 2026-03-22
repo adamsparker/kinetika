@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#18170f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Form Studio">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/ui/icon-192.png">
 <title>Form Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
@@ -232,9 +238,12 @@
         <input class="meal-search-input" id="meal-search-input" placeholder="Поиск продукта…" oninput="renderFoodGrid(this.value)">
         <button class="meal-search-clear" id="meal-search-clear" onclick="clearFoodSearch()" style="display:none"><i class="ph ph-x"></i></button>
       </div>
-      <div class="meal-gram-wrap">
-        <input class="meal-gram-input" id="meal-gram-input" type="number" value="100" min="1" max="2000" oninput="updateFoodGridCalcs()">
-        <span class="meal-gram-label">г</span>
+      <!-- Gram stepper — no keyboard needed -->
+      <div class="gram-stepper">
+        <button class="gram-step-btn" onclick="stepGrams(-10)">−</button>
+        <span class="gram-step-val" id="gram-display">100</span>
+        <span class="gram-step-unit">г</span>
+        <button class="gram-step-btn" onclick="stepGrams(10)">+</button>
       </div>
     </div>
 
@@ -643,7 +652,7 @@
 
         <!-- Hero banner — вставь свою информацию прямо в HTML ниже -->
         <div class="rating-hero">
-          <img class="rating-hero-bg" src="assets/banners/rating-hero.jpg" alt="">
+          <img class="rating-hero-bg" src="assets/banners/rating-hero.jpg" alt="" loading="lazy">
           <div class="rating-hero-overlay"></div>
           <div class="rating-hero-content">
             <span class="rating-hero-eyebrow">🏆 Твоя позиция в рейтинге</span>
@@ -677,7 +686,7 @@
       <div class="panel" id="panel-profile">
         <!-- Hero -->
         <div class="profile-hero">
-          <img class="profile-hero-bg" src="assets/banners/profile-hero.jpg" alt="">
+          <img class="profile-hero-bg" src="assets/banners/profile-hero.jpg" alt="" loading="lazy">
           <div class="profile-hero-content">
             <div class="ph-avatar-wrap">
               <div class="ph-avatar" id="ph-avatar-el">?<img id="ph-avatar-img" src="" style="display:none"></div>
@@ -712,7 +721,7 @@
             <div class="form-field"><label class="form-label">Фамилия</label><input class="form-input" id="pf-surname" type="text" placeholder="Фамилия"></div>
             <div class="form-field"><label class="form-label">Возраст</label><input class="form-input" id="pf-age" type="number" placeholder="28"></div>
             <div class="form-field"><label class="form-label">Город</label><input class="form-input" id="pf-city" type="text" placeholder="Москва"></div>
-            <div class="form-field"><label class="form-label">Вес (кг)</label><input class="form-input" id="pf-weight" type="number" placeholder="82"></div>
+            <div class="form-field"><label class="form-label">Вес (кг)</label><input class="form-input" id="pf-weight" type="number" placeholder="82"><span style="font-size:11px;color:var(--t3);margin-top:3px;display:block">Используется для расчёта рабочих весов</span></div>
             <div class="form-field"><label class="form-label">Рост (см)</label><input class="form-input" id="pf-height" type="number" placeholder="180"></div>
           </div>
           <button class="save-btn" onclick="saveProfile()">Сохранить изменения</button>
@@ -732,6 +741,36 @@
   <button class="mn-item" id="mn-rating" onclick="switchTo('rating')"><i class="ph ph-trophy"></i>Рейтинг</button>
   <button class="mn-item" id="mn-profile" onclick="switchTo('profile')"><i class="ph ph-user-circle"></i>Профиль</button>
 </nav>
+
+<!-- ── FAB — quick meal log ── -->
+<button class="fab" id="fab-btn" onclick="openMealDrawer()" style="display:none" aria-label="Добавить приём пищи">
+  <i class="ph ph-fork-knife"></i>
+</button>
+
+<!-- ── REST TIMER OVERLAY ── -->
+<div class="rest-timer-overlay" id="rest-timer-overlay">
+  <div class="rest-timer-box">
+    <div class="rt-label">Отдых</div>
+    <div class="rt-circle">
+      <svg class="rt-svg" viewBox="0 0 120 120">
+        <circle class="rt-track" cx="60" cy="60" r="52"/>
+        <circle class="rt-progress" id="rt-progress-circle" cx="60" cy="60" r="52"/>
+      </svg>
+      <div class="rt-time" id="rt-time-display">90</div>
+    </div>
+    <div class="rt-ex-name" id="rt-ex-name">Следующее упражнение</div>
+    <div class="rt-btns">
+      <button class="rt-btn rt-btn-skip" onclick="skipRestTimer()">Пропустить</button>
+      <button class="rt-btn rt-btn-plus" onclick="addRestTime(30)">+30с</button>
+    </div>
+    <button class="rt-close" onclick="stopRestTimer()"><i class="ph ph-x"></i></button>
+  </div>
+</div>
+
+<!-- ── WAKELOCK INDICATOR ── -->
+<div class="wakelock-badge" id="wakelock-badge" style="display:none">
+  <i class="ph ph-eye"></i> Экран активен
+</div>
 
 <!-- ── DETAIL OVERLAY ── -->
 <div class="detail-wrap" id="detail-wrap" onclick="maybeCloseDetail(event)">

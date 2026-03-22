@@ -1056,6 +1056,142 @@ body { font-family: var(--body); background: var(--bg); color: var(--t1); -webki
   text-align: center; padding: var(--sp8) 0; color: var(--t3); font-size: 13.5px;
 }
 
+/* ── GRAM STEPPER ── */
+.gram-stepper {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r-sm); padding: 4px 6px;
+}
+.gram-step-btn {
+  width: 28px; height: 28px; border-radius: 6px; border: none;
+  background: var(--card); color: var(--t1); font-size: 18px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .12s; flex-shrink: 0; line-height: 1;
+}
+.gram-step-btn:hover { background: var(--border); }
+.gram-step-btn:active { transform: scale(.92); }
+.gram-step-val {
+  font-size: 15px; font-weight: 700; color: var(--t1);
+  min-width: 32px; text-align: center;
+}
+.gram-step-unit { font-size: 12px; color: var(--t3); font-weight: 500; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: calc(var(--mobile-nav-h) + 16px + env(safe-area-inset-bottom,0px));
+  right: var(--sp5); z-index: 130;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--ink); color: #fff; border: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(0,0,0,.34); }
+.fab:active { transform: scale(.94); }
+
+/* ── REST TIMER ── */
+.rest-timer-overlay {
+  display: none; position: fixed; inset: 0; z-index: 800;
+  background: rgba(18,16,12,.72); backdrop-filter: blur(12px);
+  align-items: center; justify-content: center;
+}
+.rest-timer-overlay.open { display: flex; animation: fadeIn .2s ease; }
+.rest-timer-box {
+  background: var(--card); border-radius: var(--r-xl);
+  padding: var(--sp8) var(--sp7) var(--sp6);
+  width: 300px; text-align: center; position: relative;
+  box-shadow: 0 24px 60px rgba(0,0,0,.3);
+  animation: popIn .25s cubic-bezier(.25,.46,.45,.94);
+}
+.rt-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--t3); margin-bottom: var(--sp4);
+}
+.rt-circle {
+  position: relative; width: 140px; height: 140px;
+  margin: 0 auto var(--sp5);
+}
+.rt-svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+.rt-track {
+  fill: none; stroke: var(--border); stroke-width: 6;
+}
+.rt-progress {
+  fill: none; stroke: var(--ink); stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset .9s linear;
+}
+.rt-time {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 44px; font-weight: 600;
+  color: var(--t1); letter-spacing: -2px;
+}
+.rt-ex-name {
+  font-size: 13px; color: var(--t2); margin-bottom: var(--sp6);
+  font-weight: 500; line-height: 1.4;
+}
+.rt-btns { display: flex; gap: var(--sp3); justify-content: center; margin-bottom: var(--sp2); }
+.rt-btn {
+  border: 1.5px solid var(--border); border-radius: var(--r-md);
+  padding: 10px 20px; font-family: var(--body); font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: all .14s;
+}
+.rt-btn-skip { background: var(--surface); color: var(--t2); }
+.rt-btn-skip:hover { background: var(--border); color: var(--t1); }
+.rt-btn-plus { background: var(--sage-light); color: var(--sage); border-color: rgba(74,114,86,.3); }
+.rt-btn-plus:hover { background: var(--sage); color: #fff; }
+.rt-close {
+  position: absolute; top: var(--sp4); right: var(--sp4);
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--card-alt); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--t3); font-size: 14px; transition: all .14s;
+}
+.rt-close:hover { background: var(--border); color: var(--t1); }
+
+/* ── WAKELOCK BADGE ── */
+.wakelock-badge {
+  position: fixed; top: 60px; right: var(--sp4); z-index: 200;
+  background: rgba(18,16,12,.75); color: rgba(255,255,255,.8);
+  border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 5px; backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* ── EXERCISE LOG INPUTS ── */
+.aw-ex-log {
+  display: flex; align-items: center; gap: 4px; margin-top: 5px;
+}
+.ex-log-input {
+  width: 52px; background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 6px; padding: 4px 6px; font-family: var(--body);
+  font-size: 12px; font-weight: 600; color: var(--t1); text-align: center;
+  outline: none; transition: border-color .14s;
+  -moz-appearance: textfield;
+}
+.ex-log-input::-webkit-inner-spin-button,
+.ex-log-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.ex-log-input:focus { border-color: var(--ink); }
+.ex-log-sep { font-size: 12px; color: var(--t3); font-weight: 600; }
+.aw-ex-row.ex-done .ex-log-input { border-color: rgba(74,114,86,.3); background: rgba(74,114,86,.06); }
+
+/* ── REST BUTTON on exercise ── */
+.aw-rest-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+  padding: 5px 10px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+  transition: all .14s; color: var(--t2); white-space: nowrap; font-family: var(--body);
+}
+.aw-rest-btn i { font-size: 13px; flex-shrink: 0; }
+.aw-rest-btn:hover { background: var(--amber-light); border-color: var(--amber-border); color: var(--amber); }
+.aw-rest-btn:active { transform: scale(.95); }
+
+/* ── WEIGHT HINT ── */
+.ex-weight-hint {
+  font-size: 10.5px; color: var(--sage); font-weight: 600;
+  display: block; margin-top: 3px;
+}
+
 /* ── ANIMATIONS ── */
 @keyframes slideUp   { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes slideIn   { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
